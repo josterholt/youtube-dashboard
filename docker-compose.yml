@@ -1,0 +1,14 @@
+version: "3.9"
+services:
+    web:
+        build: .
+        working_dir: /var/www/html
+        ports:
+            - "8088:8088"
+        volumes:
+            - .:/var/www/html
+        entrypoint: /var/www/html/run_dev_server.sh
+    redis:
+        image: redislabs/rejson
+        volumes:
+            - ./_redis_data:/data

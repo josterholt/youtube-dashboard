@@ -21,3 +21,12 @@ Homestead.yaml
 Homestead.json
 /.vagrant
 .phpunit.result.cache
+
+# VSCode Extension Files
+.dccache
+
+# Project config
+client_secret.json
+
+# Redis TMP data
+_redis_data

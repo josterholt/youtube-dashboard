@@ -1,0 +1,17 @@
+{
+    "files.associations": {
+        "*.php": "php",
+        "*.module": "php",
+        "*.inc": "php",
+    },
+    "intelephense.files.associations": [
+
+        "*.php",
+        "*.phtml"
+    ],
+    "search.useIgnoreFiles": false,
+    "cSpell.words": [
+        "apiclient",
+        "Redislabs"
+    ]
+}
