@@ -66,8 +66,8 @@ if (empty($accessToken)) {
         }
     }
 
-
-    echo "<ul class='subscription-list'>";
+    echo "<div>" . count($subscriptions) . " subscriptions</div>\n";
+    echo "<ul class='formatted-list'>";
     foreach ($subscriptions as  $subscription) {
 
         $results = $fetch->get("josterholt.youtube.channels.{$subscription->snippet->resourceId->channelId}", '.', function ($queryParams) use ($service, $subscription) {
@@ -100,13 +100,46 @@ if (empty($accessToken)) {
 
         echo "<li><img src=\"{$subscription->snippet->thumbnails->default->url}\" /> {$subscription->snippet->title} ({$subscription->snippet->resourceId->channelId})</li>\n";
         if (!empty($results)) {
-            foreach ($results[0]->items as $item) {
-                echo $item->snippet->title . "<br />\n";
+            echo "<div><button class='js-video-list-toggle video-toggle' js-channelId='{$subscription->snippet->resourceId->channelId}'>Show Videos</button></div>\n";
+            echo "<ul class='formatted-list' style='display: none' id='js-video-list-{$subscription->snippet->resourceId->channelId}'>";
+            foreach ($results[0]->items as $video) {
+                $formatted_date_str = date('m-d-Y', strtotime($video->snippet->publishedAt));
+                echo "<li><img src='{$video->snippet->thumbnails->default->url}' />" . $video->snippet->title . " (Published: {$formatted_date_str})</li>\n";
             }
+            echo "</ul>";
         }
     }
     echo "</ul>";
     ?>
+
+    <script>
+        function toggleDisplay(target, channelId) {
+            const elId = "js-video-list-" + channelId;
+            console.log(elId);
+            const el = document.getElementById(elId);
+            if (!el) {
+                return;
+            }
+
+            const button_el = target.el;
+
+            if (el.style.display === "none") {
+                el.style.display = "block";
+                button_el.value = "Hide Videos";
+            } else {
+                el.style.display = "none";
+                button_el.value = "Show Videos";
+            }
+        }
+
+        Array.from(document.getElementsByClassName("js-video-list-toggle")).forEach(button_el => {
+            console.log(button_el);
+            const channelId = button_el.getAttribute("js-channelId");
+            button_el.addEventListener("click", function(evt) {
+                toggleDisplay(evt, channelId)
+            });
+        })
+    </script>
 </body>
 
 </html>

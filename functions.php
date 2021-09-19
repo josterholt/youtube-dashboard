@@ -121,7 +121,7 @@ class Fetch
         if (!$forceRefresh) {
             $cache = $this->_redis->get($key, $path);
             if (!empty($cache)) {
-                echo "Using cache for {$key}<br />\n";
+                //echo "Using cache for {$key}<br />\n";
                 return json_decode($cache);
             }
         }
