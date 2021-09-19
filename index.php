@@ -19,7 +19,9 @@ $dotenv->load();
 
 require_once("functions.php");
 
-$redis = getReJSONClient($_ENV['REDIS_URL'], $_ENV['REDIS_PORT'], $_ENV['REDIS_PASSWORD']);
+$fetch = new Fetch();
+$fetch->setupRedisCache($_ENV['REDIS_URL'], $_ENV['REDIS_PORT'], $_ENV['REDIS_PASSWORD']);
+
 $client = getGoogleClient();
 $accessToken = getAccessTokenFromFile($_ENV['ACCESS_TOKEN_FILE_PATH']);
 
@@ -36,55 +38,75 @@ if (!empty($accessToken) && !empty($accessToken['error'])) {
 
 if (empty($accessToken)) {
     redirectToAuthorizationPage($client);
+    die();
+} else {
+    $client->setAccessToken($accessToken);
 }
 ?>
 <html>
 
 <head>
     <title>YouTube Dashboard</title>
-    <style>
-        .subscription-list li img {
-            vertical-align: middle;
-        }
-
-        .subscription-list li {
-            list-style: none;
-            margin-top: 5px;
-            margin-bottom: 5px;
-        }
-    </style>
+    <link type="text/css" rel="stylesheet" href="css/main.css" />
 </head>
 
 <body>
     <?
-    $source = "Cache";
-    $structs = $redis->get('josterholt.youtube.subscriptions');
-    if (empty($structs)) {
-        $source = "YouTube API";
-        $structs = [];
-        if (!empty($accessToken)) {
-            $client->setAccessToken($accessToken);
-            $service = new YouTube($client);
-            $subscriptions = getSubscriptions($service);
+    $service = new YouTube($client); // Keep this accessible to other functions for reuse.
 
-            foreach ($subscriptions as  $subscription) {
-                $structs[] = transposeSubscriptionToRedisStruct($subscription);
-            }
-            $redis->set('josterholt.youtube.subscriptions', '.', $structs);
+    // Fetch channel subscriptions of authenticated user.
+    $results = $fetch->get('josterholt.youtube.subscriptions', '.', function ($queryParams) use ($service) {
+        $queryParams['mine'] = true;
+        return $service->subscriptions->listSubscriptions('contentDetails,snippet', $queryParams);
+    });
+
+    foreach ($results as $result) {
+        foreach ($result->items as $item) {
+            $subscriptions[] = $item;
         }
     }
 
-    echo "Source: {$source}\n";
 
     echo "<ul class='subscription-list'>";
-    foreach ($structs as  $sub) {
-        echo "<li><img src=\"{$sub->thumbnail->defaultURL}\" /> {$sub->channelTitle}</li>\n";
+    foreach ($subscriptions as  $subscription) {
+
+        $results = $fetch->get("josterholt.youtube.channels.{$subscription->snippet->resourceId->channelId}", '.', function ($queryParams) use ($service, $subscription) {
+            $queryParams = [
+                'id' => $subscription->snippet->resourceId->channelId
+            ];
+            return $service->channels->listChannels('snippet,contentDetails,statistics', $queryParams);
+        });
+
+        $upload_playlist_id = $results[0]->items[0]->contentDetails->relatedPlaylists->uploads;
+
+
+        $results = $fetch->get("josterholt.youtube.playlistItems.{$upload_playlist_id}", '.', function ($queryParams) use ($service, $upload_playlist_id) {
+            echo $upload_playlist_id . "<br />\n";
+            $queryParams = [
+                'maxResults' => 25,
+                'playlistId' => $upload_playlist_id
+            ];
+
+            $results = [];
+            try {
+                $results = $service->playlistItems->listPlaylistItems('snippet,contentDetails', $queryParams);
+            } catch (Exception $e) {
+                echo $e->getMessage();
+            }
+
+            return $results;
+        });
+
+
+        echo "<li><img src=\"{$subscription->snippet->thumbnails->default->url}\" /> {$subscription->snippet->title} ({$subscription->snippet->resourceId->channelId})</li>\n";
+        if (!empty($results)) {
+            foreach ($results[0]->items as $item) {
+                echo $item->snippet->title . "<br />\n";
+            }
+        }
     }
     echo "</ul>";
     ?>
 </body>
 
 </html>
-<?php
-$redis->close();
-?>

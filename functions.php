@@ -57,41 +57,6 @@ function getGoogleClient(): \Google\Client
     return $client;
 }
 
-function getSubscriptions(\Google\Service\YouTube $service): array
-{
-    $subscriptions = [];
-    $loop = true;
-    $pageToken = null;
-
-    while ($loop) {
-        $queryParams = [
-            'maxResults' => 500,
-            'mine' => true
-        ];
-
-        if (!empty($pageToken)) {
-            $queryParams['pageToken'] = $pageToken;
-        }
-
-        try {
-            $response = $service->subscriptions->listSubscriptions('contentDetails,snippet', $queryParams);
-            echo "<pre>";
-            print_r($response->toSimpleObject());
-            echo "</pre>";
-            $subscriptions = array_merge($subscriptions, $response->items);
-        } catch (\Exception $e) {
-            echo $e->getMessage() . "<br />\n"; // Need to handle error differently
-        }
-
-        $pageToken = $response->getNextPageToken();
-        if (empty($pageToken)) {
-            $loop = false;
-        }
-    }
-
-    return $subscriptions;
-}
-
 /**
  * Returns a ReJSON client. Connection will auto-close at end of script.
  * @param string $url
@@ -128,4 +93,62 @@ function transposeSubscriptionToRedisStruct($subscription)
         ]
     ];
     return $subscription;
+}
+
+class Fetch
+{
+    private $_redis = null;
+
+    /**
+     * @param string $url
+     * @param int $port
+     * @param string $password
+     */
+    public function setupRedisCache(?string $url = "localhost", ?int $port = 6379, ?string $password = null)
+    {
+        $this->_redis = getReJSONClient($url, $port, $password);
+    }
+
+    /**
+     * @param string $key
+     * @param string $path
+     * @param string $query
+     * @param $forceRefresh
+     * @return array of responses
+     */
+    public function get($key, $path, $query, $forceRefresh = false)
+    {
+        if (!$forceRefresh) {
+            $cache = $this->_redis->get($key, $path);
+            if (!empty($cache)) {
+                echo "Using cache for {$key}<br />\n";
+                return json_decode($cache);
+            }
+        }
+
+
+        $loop = true;
+        $queryParams = ['maxResults' => 500];
+        $responses = [];
+        while ($loop) {
+            $response = $query($queryParams);
+            if (empty($response)) {
+                $loop = false;
+                continue;
+            } else {
+                $responses[] = $response->toSimpleObject();
+            }
+
+
+            // Setup next page
+            if (empty($response->getNextPageToken()) || (isset($queryParams['pageToken']) && $response->getNextPageToken() == $queryParams['pageToken'])) {
+                $loop = false;
+            } else {
+                $queryParams['pageToken'] = $response->getNextPageToken();
+            }
+        }
+        $this->_redis->set($key, $path, json_encode($responses)); // Support array of requests
+
+        return $responses;
+    }
 }
