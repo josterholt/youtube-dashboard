@@ -42,3 +42,27 @@ redis-cli
 ### Optional
 
 -   [Docker](https://hub.docker.com/)
+
+## API
+
+# Response Structure
+
+**Success**
+
+```
+{
+   "status": "SUCCESS",
+   "response": "",
+   "error": ""
+}
+```
+
+**Failure**
+
+```
+{
+   "status": "FAIL",
+   "response": "",
+   "error": ""
+}
+```
