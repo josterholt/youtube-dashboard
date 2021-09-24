@@ -1,6 +1,8 @@
 {{ include('header.twig') }}
     <div>
-        <select name="categories" style="width: 200px; margin-bottom: 10px;" js-data-src="categories"></select>
+        <select name="categories" style="width: 200px; margin-bottom: 10px;" js-data-src="categories">
+            <option value="ALL">All</option>
+        </select>
     </div>
     {{video_list_content|raw}}
 {{ include('footer.twig') }}

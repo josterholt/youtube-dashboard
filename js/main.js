@@ -48,39 +48,36 @@ window.onload = function (event) {
         categories.forEach(function (category) {
             let option = document.createElement("option");
             option.text = category;
-            option.value = category;
+            option.value = MD5(category);
             el.appendChild(option);
         });
     });
 
-    function stringToHash(string) {
-        var hash = 0;
-
-        if (string.length == 0) return hash;
-
-        for (i = 0; i < string.length; i++) {
-            char = string.charCodeAt(i);
-            hash = (hash << 5) - hash + char;
-            hash = hash & hash;
-        }
-
-        return hash;
-    }
+    Array.from(document.querySelectorAll("[js-channel-id]")).forEach((el) => {
+        el.setAttribute(
+            "js-channel-id-hash",
+            MD5(el.getAttribute("js-channel-id"))
+        );
+    });
 
     function add_category(evt) {
         const node = evt.target.parentNode.getElementsByTagName("select")[0];
-        const channel_id = node.attributes["js-channel-id"]?.nodeValue;
-        const channel_hash = stringToHash(channel_id);
-        const category_hash = stringToHash(node.value);
 
-        fetch(
-            `/api/categories?categoryID=${category_hash}&itemID=${channel_hash}`
-        )
+        const data = {
+            category_id: node.selectedOptions[0].value,
+            category_title: node.selectedOptions[0].label,
+            item_id: node.attributes["js-channel-id-hash"]?.nodeValue,
+        };
+
+        fetch("/api/categories", { method: "POST", body: JSON.stringify(data) })
             .then(function (response) {
                 return response.json();
             })
             .then(function (data) {
                 console.log(data);
+            })
+            .catch(function (error) {
+                console.log(error);
             });
     }
 

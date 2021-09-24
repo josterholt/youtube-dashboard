@@ -1,7 +1,5 @@
 <?php
 
-use Redislabs\Module\ReJSON\ReJSON;
-
 /**
  * Checks for existing access token or code (ability to get access token).
  * If one does not exist, redirects user to authorization page.
@@ -76,7 +74,7 @@ function getReJSONClient(string $url, int $port, string $password = null): Redis
         $redisClient->close();
     });
 
-    return ReJSON::createWithPhpRedis($redisClient);
+    return Redislabs\Module\ReJSON\ReJSON::createWithPhpRedis($redisClient);
 }
 
 function transposeSubscriptionToRedisStruct($subscription)
@@ -95,6 +93,61 @@ function transposeSubscriptionToRedisStruct($subscription)
     return $subscription;
 }
 
+function getTwig()
+{
+    $loader = new \Twig\Loader\FilesystemLoader('templates');
+    $twig = new \Twig\Environment($loader);
+    return $twig;
+}
+
+function getClient()
+{
+    /**
+     * @todo move this out of header.php. Google API won't be used for all files.
+     */
+    $client = getGoogleClient();
+    $accessToken = getAccessTokenFromFile($_ENV['ACCESS_TOKEN_FILE_PATH']);
+
+    if ($accessToken == null && !empty($_GET['code'])) {
+        $accessToken = getAccessTokenFromCode($client, $_GET['code']);
+    }
+
+    /**
+     * @todo This could possibly cause a redirect loop. It should be altered to avoid this scenario.
+     */
+    if (!empty($accessToken) && !empty($accessToken['error'])) {
+        $accessToken = null;
+    }
+
+    if (empty($accessToken)) {
+        redirectToAuthorizationPage($client);
+        die();
+    } else {
+        $client->setAccessToken($accessToken);
+    }
+
+    return $client;
+}
+
+function getSubscriptions($service)
+{
+    $fetch = new Fetch();
+    $fetch->setupRedisCache($_ENV['REDIS_URL'], $_ENV['REDIS_PORT'], $_ENV['REDIS_PASSWORD']);
+
+    // Fetch channel subscriptions of authenticated user.
+    $results = $fetch->get('josterholt.youtube.subscriptions', '.', function ($queryParams) use ($service) {
+        $queryParams['mine'] = true;
+        return $service->subscriptions->listSubscriptions('contentDetails,snippet', $queryParams);
+    });
+
+    foreach ($results as $result) {
+        foreach ($result->items as $item) {
+            $subscriptions[] = $item;
+        }
+    }
+    return $subscriptions;
+}
+
 class Fetch
 {
     private $_redis = null;
@@ -107,6 +160,15 @@ class Fetch
     public function setupRedisCache(?string $url = "localhost", ?int $port = 6379, ?string $password = null)
     {
         $this->_redis = getReJSONClient($url, $port, $password);
+    }
+
+    /**
+     * @param Redislabs\Module\ReJSON\ReJSON $redis
+     * @return void
+     */
+    public function setRedisClient(Redislabs\Module\ReJSON\ReJSON $redis)
+    {
+        $this->_redis = $redis;
     }
 
     /**

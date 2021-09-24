@@ -22,38 +22,62 @@ $response = [
     "response" => "",
     "error"    => ""
 ];
-if (empty($_GET['categoryID'])) {
+$json = file_get_contents('php://input');
+$data = (array) json_decode($json);
+
+if (empty($data['category_id'])) {
     $response["status"] = "FAIL";
     $response["error"] = "Category ID is required";
-} elseif (empty($_GET['itemID'])) {
+} elseif (empty($data['item_id'])) {
     $response["status"] = "FAIL";
     $response["error"] = "Item ID is required";
 }
 
-$category_id = (string) $_GET['categoryID'];
-$item_id = (string) $_GET['itemID'];
+$category_id = (string) $data['category_id'];
+$category_title = (string) $data['category_title'];
+$item_id = (string) $data['item_id'];
 
 
 $redis = getReJSONClient($_ENV['REDIS_URL'], $_ENV['REDIS_PORT'], $_ENV['REDIS_PASSWORD']);
 
+/**
+ * ADD CATEGORY TO LIST
+ */
+$category_names = $redis->get("categories.names", ".");
+if (empty($category_names)) {
+    $category_names = [];
+    $redis->set("categories.names", ".", $category_names);
+}
+$category_exists = false;
+foreach ($category_names as $category) {
+    if ($category->id == $category_id) {
+        $category_exists = true;
+    }
+}
+
+if (!$category_exists) {
+    $category_names[] = ["id" => $category_id, "title" => $category_title];
+    $redis->set("categories.names", ".", $category_names);
+}
+/**
+ * END ADD CATEGORY TO LIST
+ */
+
+/**
+ * ADD ITEM TO LIST
+ */
 $item_map = $redis->get("categories.items", ".");
 if (empty($item_map)) {
     $redis->set("categories.items", ".", ["mapping" => []]);
 }
 
-// if (empty($item_map[$category_id])) {
-//     $item_map[$category_id] = [];
-// }
-
-// if (!in_array($item_id, $item_map[$category_id])) {
-//     $item_map[$category_id][] = $item_id;
-// }
-
-
 if (!$redis->arrappend("categories.items", "mapping", ["categoryID" => $category_id, "itemID" => $item_id])) {
     $response["status"] = "FAIL";
     $response["error"] = "Unable to add item to categories";
 }
+/**
+ * END ITEM TO LIST
+ */
 
 
 $mapping = $redis->getArray("categories.items", ".mapping");

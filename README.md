@@ -66,3 +66,31 @@ redis-cli
    "error": ""
 }
 ```
+
+# Subsystems
+
+## Categorization
+
+/api/categories is intended as a generic categorization mechanism. All it needs is an item and category.
+
+### Data Structure (Stored in Redis
+
+)
+
+```
+// categories.names
+[
+   {
+      id: string (hash),
+      title: string
+   },
+]
+
+// categories.items
+{
+   mapping: [{
+      categoryID: string (hash),
+      itemID: string (hash)
+   }]
+}
+```

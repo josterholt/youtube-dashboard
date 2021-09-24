@@ -1,45 +1,67 @@
 <?
-
-use Google\Service\YouTube;
-
-
 require_once("includes/header.php");
-$service = new YouTube($client); // Keep this accessible to other functions for reuse.
 
-// Fetch channel subscriptions of authenticated user.
-$results = $fetch->get('josterholt.youtube.subscriptions', '.', function ($queryParams) use ($service) {
-    $queryParams['mine'] = true;
-    return $service->subscriptions->listSubscriptions('contentDetails,snippet', $queryParams);
-});
+/**
+ * ======================================================
+ * BEGIN SETUP
+ * ======================================================
+ */
+$client = getClient();
+$service = new Google\Service\YouTube($client); // Keep this accessible to other functions for reuse.
+$subscriptions = getSubscriptions($service);
+$twig = getTwig();
 
-foreach ($results as $result) {
-    foreach ($result->items as $item) {
-        $subscriptions[] = $item;
-    }
+/**
+ * ======================================================
+ * END SETUP
+ * ======================================================
+ */
+
+
+/**
+ * ======================================================
+ * BEGIN PAGE CONTENT
+ * ======================================================
+ */
+
+/**
+ * BEGIN UTIL SETUP
+ */
+$redis = getReJSONClient($_ENV['REDIS_URL'], $_ENV['REDIS_PORT'], $_ENV['REDIS_PASSWORD']);
+
+$fetch = new Fetch();
+$fetch->setRedisClient($redis);
+/**
+ * END UTIL SETUP
+ */
+
+// Store last activity for display
+$lastActivityLookup = [];
+
+/**
+ * BEGIN MAIN CONTENT
+ */
+$category_lookup = [];
+$data = $redis->getArray("categories.items"); // @todo Store categories in user specific namespace
+foreach ($data['mapping'] as $map) {
+    $category_lookup[$map['itemID']] = $map['categoryID'];
 }
 
-$loader = new \Twig\Loader\FilesystemLoader('templates');
-$twig = new \Twig\Environment($loader);
+// $data = $redis->get("categories.names");
+// echo "<pre>";
+// print_r($data);
+// echo "</pre>";
 
-
-
-
-$content = "";
-
-$lastActivityLookup = [];
-$content = "<div>" . count($subscriptions) . " subscriptions</div>\n";
-$content .= "<ul class='formatted-list'>";
+$videos_lookup = [];
 foreach ($subscriptions as  $subscription) {
-
-    $results = $fetch->get("josterholt.youtube.channels.{$subscription->snippet->resourceId->channelId}", '.', function ($queryParams) use ($service, $subscription) {
+    $channels = $fetch->get("josterholt.youtube.channels.{$subscription->snippet->resourceId->channelId}", '.', function ($queryParams) use ($service, $subscription) {
         $queryParams = [
             'id' => $subscription->snippet->resourceId->channelId
         ];
         return $service->channels->listChannels('snippet,contentDetails,statistics', $queryParams);
     });
 
-    $upload_playlist_id = $results[0]->items[0]->contentDetails->relatedPlaylists->uploads;
-
+    $upload_playlist_id = $channels[0]->items[0]->contentDetails->relatedPlaylists->uploads;
 
     $videos = $fetch->get("josterholt.youtube.playlistItems.{$upload_playlist_id}", '.', function ($queryParams) use ($service, $upload_playlist_id) {
         echo $upload_playlist_id . "<br />\n";
@@ -57,6 +79,14 @@ foreach ($subscriptions as  $subscription) {
 
         return $results;
     });
+    $videos_lookup[$subscription->snippet->resourceId->channelId] = $videos;
+}
+
+$content = "";
+$content = "<div>" . count($subscriptions) . " subscriptions</div>\n";
+$content .= "<ul class='formatted-list'>";
+foreach ($subscriptions as  $subscription) {
+    $videos = $videos_lookup[$subscription->snippet->resourceId->channelId];
 
     $video_html = "";
     if (!empty($videos)) {
@@ -80,9 +110,10 @@ foreach ($subscriptions as  $subscription) {
         $last_activity_str .= "N/A";
     }
 
+    $context = ["subscription" => $subscription];
     $content .= "<li>
         <img src=\"{$subscription->snippet->thumbnails->default->url}\" /> {$subscription->snippet->title} ({$last_activity_str})
-        <div><select name=\"add_category\" js-channel-id=\"{$subscription->snippet->resourceId->channelId}\" js-data-src=\"categories\" style=\"margin-top: 10px; margin-bottom: 5px;\"></select><button name=\"category_submit\">Go</button></div>
+        " . $twig->render("video_categories.twig", $context) . "
     </li>\n";
     $content .= "<!-- {$subscription->snippet->resourceId->channelId} -->\n";
 
@@ -94,3 +125,8 @@ $context = [
     "video_list_content" => $content,
 ];
 echo $twig->render("index.twig", $context);
+/**
+ * ======================================================
+ * END PAGE CONTENT
+ * ======================================================
+ */
