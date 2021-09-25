@@ -1,8 +1,31 @@
-{{ include('header.twig') }}
-    <div>
-        <select name="categories" style="width: 200px; margin-bottom: 10px;" js-data-src="categories">
-            <option value="ALL">All</option>
-        </select>
-    </div>
-    {{video_list_content|raw}}
-{{ include('footer.twig') }}
+{{ include("header.twig") }}
+<div>
+    <select
+        name="categories"
+        style="width: 200px; margin-bottom: 10px"
+        js-data-src="categories"
+    >
+        <option value="ALL">All</option>
+    </select>
+</div>
+
+<div>{{ grouped_channel_sets | length }} subscriptions</div>
+
+{% for set in grouped_channel_sets %}
+<div>ID: {{ set.category.categoryID }}</div>
+<div>Title: {{ set.category.categoryTitle }}</div>
+
+<ul class="formatted-list">
+    {% for channel_set in set.items %}
+    {{
+        include("channel_row.twig", {
+            subscription: channel_set.subscription,
+            videos: channel_set.videos,
+            last_activity: channel_set.last_activity
+        })
+    }}
+    {% endfor %}
+</ul>
+{% endfor %}
+
+{{ include("footer.twig") }}

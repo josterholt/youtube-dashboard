@@ -39,18 +39,27 @@ $fetch->setRedisClient($redis);
 $lastActivityLookup = [];
 
 /**
- * BEGIN MAIN CONTENT
+ * BEGIN FETCH DATA
  */
-$category_lookup = [];
-$data = $redis->getArray("categories.items"); // @todo Store categories in user specific namespace
-foreach ($data['mapping'] as $map) {
-    $category_lookup[$map['itemID']] = $map['categoryID'];
+$category_title_lookup = [];
+$data = $redis->get("categories.names");
+foreach($data as $category) {
+    $category_title_lookup[$category->id]['categoryTitle'] = $category->title;
 }
 
-// $data = $redis->get("categories.names");
-// echo "<pre>";
-// print_r($data);
-// echo "</pre>";
+$item_category_lookup = [];
+$data = $redis->getArray("categories.items"); // @todo Store categories in user specific namespace
+foreach ($data['mapping'] as $map) {
+    if(empty($map['itemID'])) {
+        continue;
+    }
+
+    $category_title = "None";
+    if(isset($category_title_lookup[$map['categoryID']])) {
+        $category_title = $category_title_lookup[$map['categoryID']]['categoryTitle'];
+    }
+    $item_category_lookup[$map['itemID']] = ["categoryID" => $map['categoryID'], "categoryTitle" => $category_title];
+}
 
 $videos_lookup = [];
 foreach ($subscriptions as  $subscription) {
@@ -81,48 +90,40 @@ foreach ($subscriptions as  $subscription) {
     });
     $videos_lookup[$subscription->snippet->resourceId->channelId] = $videos;
 }
+/**
+ * END FETCH DATA
+ */
 
-$content = "";
-$content = "<div>" . count($subscriptions) . " subscriptions</div>\n";
-$content .= "<ul class='formatted-list'>";
+/**
+ * BEGIN PAGE CONTENT
+ */
+$channel_sets = [];
 foreach ($subscriptions as  $subscription) {
+    $displayed_channels[] = $subscription->snippet->resourceId->channelId;
     $videos = $videos_lookup[$subscription->snippet->resourceId->channelId];
 
-    $video_html = "";
-    if (!empty($videos)) {
-        $video_html .= "<div style=\"margin-bottom: 25px;\"><button class='js-video-list-toggle video-toggle' js-channelId='{$subscription->snippet->resourceId->channelId}'>Show Videos</button></div>\n";
-        $video_html .= "<ul class='formatted-list' style='display: none' id='js-video-list-{$subscription->snippet->resourceId->channelId}'>";
-        foreach ($videos[0]->items as $video) {
-            if (!isset($lastActivityLookup[$subscription->snippet->resourceId->channelId]) || strtotime($video->snippet->publishedAt) > $lastActivityLookup[$subscription->snippet->resourceId->channelId]) {
-                $lastActivityLookup[$subscription->snippet->resourceId->channelId] = strtotime($video->snippet->publishedAt);
-            }
-
-            $formatted_date_str = date('m-d-Y', strtotime($video->snippet->publishedAt));
-            $video_html .= "<li><img src='{$video->snippet->thumbnails->default->url}' />" . $video->snippet->title . " (Published: {$formatted_date_str})</li>\n";
-        }
-        $video_html .= "</ul>";
-    }
-
-    $last_activity_str = "Last Activity: ";
+    $last_activity = "Last Activity: ";
     if (isset($lastActivityLookup[$subscription->snippet->resourceId->channelId])) {
-        $last_activity_str .= date('m/d/y', $lastActivityLookup[$subscription->snippet->resourceId->channelId]);
+        $last_activity .= date('m/d/y', $lastActivityLookup[$subscription->snippet->resourceId->channelId]);
     } else {
-        $last_activity_str .= "N/A";
+        $last_activity .= "N/A";
     }
 
-    $context = ["subscription" => $subscription];
-    $content .= "<li>
-        <img src=\"{$subscription->snippet->thumbnails->default->url}\" /> {$subscription->snippet->title} ({$last_activity_str})
-        " . $twig->render("video_categories.twig", $context) . "
-    </li>\n";
-    $content .= "<!-- {$subscription->snippet->resourceId->channelId} -->\n";
+    if(!isset($item_category_lookup[MD5($subscription->snippet->resourceId->channelId)])) {
+        $category = ["categoryID" => 0, "categoryTitle" => "None"];
+    } else {
+        $category = $item_category_lookup[MD5($subscription->snippet->resourceId->channelId)];
+        echo "<pre>";
+        print_r($category);
+        echo "</pre>";
+    }
 
-    $content .= $video_html;
+    $grouped_channel_sets[$category['categoryID']]['category'] = $category;
+    $grouped_channel_sets[$category['categoryID']]['items'][] = ["subscription" => $subscription, "videos" => $videos, "last_activity" => $last_activity];
 }
-$content .= "</ul>";
 
 $context = [
-    "video_list_content" => $content,
+    "grouped_channel_sets" => $grouped_channel_sets,
 ];
 echo $twig->render("index.twig", $context);
 /**

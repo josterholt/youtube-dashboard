@@ -1,0 +1,40 @@
+<li>
+    <img src="{{ subscription.snippet.thumbnails.default.url }}" />
+    {{ subscription.snippet.title }} ({{ last_activity }})
+    <div>
+        <select
+            name="add_category"
+            js-channel-id="{{ subscription.snippet.resourceId.channelId }}"
+            js-data-src="categories"
+            style="margin-top: 10px; margin-bottom: 5px"
+        >
+            <option disabled selected>-- Select a Category --</option>
+        </select>
+        <button name="category_submit">Go</button>
+    </div>
+    <!-- {{subscription.snippet.resourceId.channelId}} -->
+
+    {% if videos %}
+    <div style="margin-bottom: 25px">
+        <button
+            class="js-video-list-toggle video-toggle"
+            js-channelId="{{ subscription.snippet.resourceId.channelId }}"
+        >
+            Show Videos
+        </button>
+    </div>
+    <ul
+        class="formatted-list"
+        style="display: none"
+        id="js-video-list-{{ subscription.snippet.resourceId.channelId }}"
+    >
+        {% for video in videos.0.items %}
+        <li>
+            <img src="{{ video.snippet.thumbnails.default.url }}" />
+            {{ video.snippet.title }} {#(Published:
+            {{ date(video.snippet.publishedAt) }})#}
+        </li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+</li>
