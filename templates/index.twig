@@ -1,25 +1,29 @@
 {{ include("header.twig") }}
 <div>
     <select
-        name="categories"
+        name="category_select"
         style="width: 200px; margin-bottom: 10px"
         js-data-src="categories"
     >
-        <option value="ALL">All</option>
+        <option disabled selected>Select a Category Filter</option>
+        <option value="NO_FILTER">No Filter</option>
     </select>
 </div>
 
 <div>{{ grouped_channel_sets | length }} subscriptions</div>
 
-{% for set in grouped_channel_sets %}
-<div>ID: {{ set.category.categoryID }}</div>
-<div>Title: {{ set.category.categoryTitle }}</div>
+{% for set in grouped_channel_sets %} {% if set.category.categoryID == 0 %}
+<h2>Uncategorized</h2>
+{% else %}
+<h2>{{ set.category.categoryTitle }}</h2>
+{% endif %}
 
 <ul class="formatted-list">
     {% for channel_set in set.items %}
     {{
         include("channel_row.twig", {
             subscription: channel_set.subscription,
+            channel: channel_set.channel,
             videos: channel_set.videos,
             last_activity: channel_set.last_activity
         })

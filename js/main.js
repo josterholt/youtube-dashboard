@@ -75,6 +75,7 @@ window.onload = function (event) {
             })
             .then(function (data) {
                 console.log(data);
+                location.reload();
             })
             .catch(function (error) {
                 console.log(error);
@@ -84,6 +85,12 @@ window.onload = function (event) {
     document.getElementsByName("category_submit").forEach(function (el) {
         el.addEventListener("click", add_category);
     });
+
+    document
+        .getElementsByName("category_select")[0]
+        .addEventListener("change", function (evt) {
+            document.location.search = "category=" + evt.target.value;
+        });
     /**
      * END ADD CATEGORY FUNCTIONALITY
      */

@@ -1,6 +1,20 @@
 <li>
-    <img src="{{ subscription.snippet.thumbnails.default.url }}" />
-    {{ subscription.snippet.title }} ({{ last_activity }})
+    <div>
+        URL: {{ channel.snippet.customUrl }}<br />
+        <a
+            href="https://youtube.com/c/{{ channel.snippet.customUrl }}"
+            target="_blank"
+            rel="noopener"
+            ><img src="{{ subscription.snippet.thumbnails.default.url }}"
+        /></a>
+        <a href="https://youtube.com/c/{{ channel.snippet.customUrl }}">{{
+            subscription.snippet.title
+        }}</a>
+        ({{ last_activity }})
+    </div>
+    <div>
+        {{ subscription.snippet.description }}
+    </div>
     <div>
         <select
             name="add_category"
@@ -31,8 +45,8 @@
         {% for video in videos.0.items %}
         <li>
             <img src="{{ video.snippet.thumbnails.default.url }}" />
-            {{ video.snippet.title }} {#(Published:
-            {{ date(video.snippet.publishedAt) }})#}
+            {{ video.snippet.title }} (Published:
+            {{ video.snippet.publishedAt|date('m/d/Y') }})
         </li>
         {% endfor %}
     </ul>

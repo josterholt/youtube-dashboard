@@ -1,4 +1,5 @@
 <?php
+require_once("class.fetch.php");
 
 /**
  * Checks for existing access token or code (ability to get access token).
@@ -23,7 +24,7 @@ function getAccessTokenFromCode(\Google\Client $client, string $code): ?array
     return $client->fetchAccessTokenWithAuthCode($authCode); // @todo returns array?
 }
 
-function storeAccessTokenToFile(string $file_path, string $access_token): bool
+function storeAccessTokenToFile(string $file_path, array|null $access_token): bool
 {
     if (file_put_contents($file_path, json_encode($access_token)) === false) {
         return false;
@@ -77,22 +78,6 @@ function getReJSONClient(string $url, int $port, string $password = null): Redis
     return Redislabs\Module\ReJSON\ReJSON::createWithPhpRedis($redisClient);
 }
 
-function transposeSubscriptionToRedisStruct($subscription)
-{
-    $subscription = (object) [
-        "subscriptionId" => $subscription->id,
-        "channelId" => $subscription->snippet->resourceId->channelId,
-        "channelTitle" => $subscription->snippet->title,
-        "description" => $subscription->snippet->description,
-        "thumbnail" => (object) [
-            "defaultURL" => $subscription->snippet->thumbnails->default->url,
-            "mediumURL" => $subscription->snippet->thumbnails->medium->url,
-            "highURL" => $subscription->snippet->thumbnails->high->url
-        ]
-    ];
-    return $subscription;
-}
-
 function getTwig()
 {
     $loader = new \Twig\Loader\FilesystemLoader('templates');
@@ -110,6 +95,10 @@ function getClient()
 
     if ($accessToken == null && !empty($_GET['code'])) {
         $accessToken = getAccessTokenFromCode($client, $_GET['code']);
+
+        if(empty($accessToken['error'])) {
+            storeAccessTokenToFile($_ENV['ACCESS_TOKEN_FILE_PATH'], $accessToken);
+        }
     }
 
     /**
@@ -146,71 +135,4 @@ function getSubscriptions($service)
         }
     }
     return $subscriptions;
-}
-
-class Fetch
-{
-    private $_redis = null;
-
-    /**
-     * @param string $url
-     * @param int $port
-     * @param string $password
-     */
-    public function setupRedisCache(?string $url = "localhost", ?int $port = 6379, ?string $password = null)
-    {
-        $this->_redis = getReJSONClient($url, $port, $password);
-    }
-
-    /**
-     * @param Redislabs\Module\ReJSON\ReJSON $redis
-     * @return void
-     */
-    public function setRedisClient(Redislabs\Module\ReJSON\ReJSON $redis)
-    {
-        $this->_redis = $redis;
-    }
-
-    /**
-     * @param string $key
-     * @param string $path
-     * @param string $query
-     * @param $forceRefresh
-     * @return array of responses
-     */
-    public function get($key, $path, $query, $forceRefresh = false)
-    {
-        if (!$forceRefresh) {
-            $cache = $this->_redis->get($key, $path);
-            if (!empty($cache)) {
-                //echo "Using cache for {$key}<br />\n";
-                return json_decode($cache);
-            }
-        }
-
-
-        $loop = true;
-        $queryParams = ['maxResults' => 500];
-        $responses = [];
-        while ($loop) {
-            $response = $query($queryParams);
-            if (empty($response)) {
-                $loop = false;
-                continue;
-            } else {
-                $responses[] = $response->toSimpleObject();
-            }
-
-
-            // Setup next page
-            if (empty($response->getNextPageToken()) || (isset($queryParams['pageToken']) && $response->getNextPageToken() == $queryParams['pageToken'])) {
-                $loop = false;
-            } else {
-                $queryParams['pageToken'] = $response->getNextPageToken();
-            }
-        }
-        $this->_redis->set($key, $path, json_encode($responses)); // Support array of requests
-
-        return $responses;
-    }
 }
