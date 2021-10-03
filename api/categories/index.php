@@ -37,7 +37,7 @@ $category_title = (string) $data['category_title'];
 $item_id = (string) $data['item_id'];
 
 
-$redis = getReJSONClient($_ENV['REDIS_URL'], $_ENV['REDIS_PORT'], $_ENV['REDIS_PASSWORD']);
+$redis = RedisService::getInstance();
 
 /**
  * ADD CATEGORY TO LIST
