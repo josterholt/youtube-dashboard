@@ -1,21 +1,8 @@
 <?php
-define("FETCH_REFRESH_CACHE", true);
-define("FETCH_USE_CACHE", false);
-
-
 class Fetch
 {
     private $_redis = null;
-
-    /**
-     * @param string $url
-     * @param int $port
-     * @param string $password
-     */
-    public function setupRedisCache(?string $url = "localhost", ?int $port = 6379, ?string $password = null)
-    {
-        $this->_redis = getReJSONClient($url, $port, $password);
-    }
+    protected $_useCache = true;
 
     /**
      * @param Redislabs\Module\ReJSON\ReJSON $redis
@@ -27,8 +14,19 @@ class Fetch
     }
 
     /**
-     * (set REFRESH/USE CACHE)
+     * Fetch will use cache before calling external resource.
      */
+    public function enableCache() {
+        $this->_useCache = true;
+    }
+
+    /**
+     * Fetch will retrieve fresh data from external resource,
+     * even if cache exists.
+     */
+    public function disableCache() {
+        $this->_useCache = false;
+    }
 
     /**
      * @param string $key
@@ -37,9 +35,9 @@ class Fetch
      * @param $forceRefresh
      * @return array of responses
      */
-    public function get($key, $path, $query, $forceRefresh = false)
+    public function get($key, $path, $query)
     {
-        if (!$forceRefresh) {
+        if ($this->_useCache) {
             $cache = $this->_redis->get($key, $path);
             if (!empty($cache)) {
                 echo "<!-- Using cache for {$key} -->\n";
