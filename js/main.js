@@ -35,20 +35,20 @@ window.onload = function (event) {
      * ADD CATEGORY FUNCTIONALITY
      */
     const categories = [
-        "Engineering",
-        "Creepypasta",
-        "Documentary",
-        "Games",
-        "Music",
-        "Psychology",
-        "Streaming",
+        { id: 1001, title: "Engineering" },
+        { id: 1002, title: "Creepypasta" },
+        { id: 1003, title: "Documentary" },
+        { id: 1004, title: "Games" },
+        { id: 1005, title: "Music" },
+        { id: 1006, title: "Psychology" },
+        { id: 1007, title: "Streaming" },
     ];
 
     Array.from(document.querySelectorAll("[js-data-src]")).forEach((el) => {
         categories.forEach(function (category) {
             let option = document.createElement("option");
-            option.text = category;
-            option.value = MD5(category);
+            option.text = category.title;
+            option.value = category.id;
             el.appendChild(option);
         });
     });

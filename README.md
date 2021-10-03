@@ -78,10 +78,13 @@ redis-cli
 )
 
 ```
+// categories._id
+int
+
 // categories.names
 [
    {
-      id: string (hash),
+      id: int (autoincrement),
       title: string
    },
 ]
@@ -89,7 +92,7 @@ redis-cli
 // categories.items
 {
    mapping: [{
-      categoryID: string (hash),
+      categoryID: int,
       itemID: string (hash)
    }]
 }

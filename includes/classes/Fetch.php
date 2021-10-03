@@ -1,4 +1,8 @@
 <?php
+define("FETCH_REFRESH_CACHE", true);
+define("FETCH_USE_CACHE", false);
+
+
 class Fetch
 {
     private $_redis = null;
@@ -23,6 +27,10 @@ class Fetch
     }
 
     /**
+     * (set REFRESH/USE CACHE)
+     */
+
+    /**
      * @param string $key
      * @param string $path
      * @param string $query
@@ -34,7 +42,7 @@ class Fetch
         if (!$forceRefresh) {
             $cache = $this->_redis->get($key, $path);
             if (!empty($cache)) {
-                //echo "Using cache for {$key}<br />\n";
+                echo "<!-- Using cache for {$key} -->\n";
                 return json_decode($cache);
             }
         }

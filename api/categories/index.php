@@ -16,7 +16,6 @@ $dotenv->load();
 
 require_once("../../includes/functions.php");
 
-//echo $_SERVER['REQUEST_URI'] . "\n";
 $response = [
     "status" => "SUCCESS",
     "response" => "",
@@ -33,7 +32,7 @@ if (empty($data['category_id'])) {
     $response["error"] = "Item ID is required";
 }
 
-$category_id = (string) $data['category_id'];
+$category_id = (int) $data['category_id'];
 $category_title = (string) $data['category_title'];
 $item_id = (string) $data['item_id'];
 
@@ -45,9 +44,10 @@ $redis = getReJSONClient($_ENV['REDIS_URL'], $_ENV['REDIS_PORT'], $_ENV['REDIS_P
  */
 $category_names = $redis->get("categories.names", ".");
 if (empty($category_names)) {
-    $category_names = [];
-    $redis->set("categories.names", ".", $category_names);
+    echo json_encode(["status" => "FAIL", "error" => "No categories found"]);
+    die();
 }
+
 $category_exists = false;
 foreach ($category_names as $category) {
     if ($category->id == $category_id) {
@@ -56,8 +56,8 @@ foreach ($category_names as $category) {
 }
 
 if (!$category_exists) {
-    $category_names[] = ["id" => $category_id, "title" => $category_title];
-    $redis->set("categories.names", ".", $category_names);
+    echo json_encode(["status" => "FAIL", "error" => "Category does not exist"]);
+    die();
 }
 /**
  * END ADD CATEGORY TO LIST

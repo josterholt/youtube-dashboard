@@ -49,16 +49,18 @@ foreach($data as $category) {
 
 $item_category_lookup = [];
 $data = $redis->getArray("categories.items"); // @todo Store categories in user specific namespace
-foreach ($data['mapping'] as $map) {
-    if(empty($map['itemID'])) {
-        continue;
-    }
+if(!empty($data)) {
+    foreach ($data['mapping'] as $map) {
+        if(empty($map['itemID'])) {
+            continue;
+        }
 
-    $category_title = "None";
-    if(isset($category_title_lookup[$map['categoryID']])) {
-        $category_title = $category_title_lookup[$map['categoryID']]['categoryTitle'];
+        $category_title = "None";
+        if(isset($category_title_lookup[$map['categoryID']])) {
+            $category_title = $category_title_lookup[$map['categoryID']]['categoryTitle'];
+        }
+        $item_category_lookup[$map['itemID']] = ["categoryID" => $map['categoryID'], "categoryTitle" => $category_title];
     }
-    $item_category_lookup[$map['itemID']] = ["categoryID" => $map['categoryID'], "categoryTitle" => $category_title];
 }
 
 $channels_lookup = [];
@@ -98,9 +100,7 @@ foreach ($subscriptions as  $subscription) {
         return $results;
     });
 
-    // echo "<pre>";
-    // print_r($videos);
-    // echo "</pre>";
+
     if(!empty($videos)) {
         foreach ($videos[0]->items as $video) {
             if (!isset($lastActivityLookup[$subscription->snippet->resourceId->channelId]) || strtotime($video->snippet->publishedAt) > $lastActivityLookup[$subscription->snippet->resourceId->channelId]) {

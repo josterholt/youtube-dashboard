@@ -3,6 +3,7 @@
         "google/apiclient": "^2.0",
         "mkorkmaz/redislabs-rejson": "1.1.1",
         "vlucas/phpdotenv": "5.3.0",
-        "twig/twig": "^3.3"
+        "twig/twig": "^3.3",
+        "phpunit/phpunit": " ^9.5"
     }
 }

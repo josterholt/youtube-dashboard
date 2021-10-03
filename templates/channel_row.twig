@@ -1,15 +1,20 @@
 <li>
+    <!-- Channel ID: {{ subscription.snippet.resourceId.channelId }} -->
     <div>
-        URL: {{ channel.snippet.customUrl }}<br />
         <a
-            href="https://youtube.com/c/{{ channel.snippet.customUrl }}"
+            href="https://youtube.com/channel/{{
+                subscription.snippet.resourceId.channelId
+            }}"
             target="_blank"
             rel="noopener"
             ><img src="{{ subscription.snippet.thumbnails.default.url }}"
         /></a>
-        <a href="https://youtube.com/c/{{ channel.snippet.customUrl }}">{{
-            subscription.snippet.title
-        }}</a>
+        <a
+            href="https://youtube.com/channel/{{
+                subscription.snippet.resourceId.channelId
+            }}"
+            >{{ subscription.snippet.title }}</a
+        >
         ({{ last_activity }})
     </div>
     <div>

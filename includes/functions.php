@@ -1,5 +1,5 @@
 <?php
-require_once("class.fetch.php");
+require_once("classes/Fetch.php");
 
 /**
  * Checks for existing access token or code (ability to get access token).
@@ -118,7 +118,7 @@ function getClient()
     return $client;
 }
 
-function getSubscriptions($service)
+function getSubscriptions($service, $forceRefresh=false)
 {
     $fetch = new Fetch();
     $fetch->setupRedisCache($_ENV['REDIS_URL'], $_ENV['REDIS_PORT'], $_ENV['REDIS_PASSWORD']);
@@ -127,7 +127,7 @@ function getSubscriptions($service)
     $results = $fetch->get('josterholt.youtube.subscriptions', '.', function ($queryParams) use ($service) {
         $queryParams['mine'] = true;
         return $service->subscriptions->listSubscriptions('contentDetails,snippet', $queryParams);
-    });
+    }, $forceRefresh);
 
     foreach ($results as $result) {
         foreach ($result->items as $item) {
