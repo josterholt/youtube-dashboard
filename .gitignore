@@ -27,6 +27,10 @@ Homestead.json
 
 # Project config
 client_secret.json
+access_token.json
 
 # Redis TMP data
 _redis_data
+
+# .vscode
+.vscode
