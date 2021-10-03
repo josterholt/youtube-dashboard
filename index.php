@@ -34,7 +34,9 @@ if(!empty($data)) {
 
 $channels_lookup = [];
 $play_list_items_lookup = [];
-foreach (SubscriptionRepository::getAll() as  $subscription) {
+
+$subscriptions = SubscriptionRepository::getAll();
+foreach ($subscriptions as  $subscription) {
     // @todo is there a way to pull channels in bulk?
     $channels = ChannelRepository::getBySubscriptionId($subscription->snippet->resourceId->channelId);
 
