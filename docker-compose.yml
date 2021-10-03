@@ -12,3 +12,5 @@ services:
         image: redislabs/rejson
         volumes:
             - ./_redis_data:/data
+        ports:
+            - "6379:6379"

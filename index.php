@@ -49,8 +49,9 @@ foreach ($subscriptions as  $subscription) {
     $upload_playlist_id = $channels[0]->items[0]->contentDetails->relatedPlaylists->uploads;
     $play_list_items = PlayListItemRepository::getByPlaylistId($upload_playlist_id);
 
+
     if(!empty($play_list_items)) {
-        foreach ($play_list_items[0]->items as $play_list_item) {
+        foreach ($play_list_items[0]->items as $play_list_item) {            
             if (!isset($lastActivityLookup[$subscription->snippet->resourceId->channelId]) || strtotime($play_list_item->snippet->publishedAt) > $lastActivityLookup[$subscription->snippet->resourceId->channelId]) {
                 $lastActivityLookup[$subscription->snippet->resourceId->channelId] = strtotime($play_list_item->snippet->publishedAt);
             }

@@ -129,7 +129,6 @@ class PlayListItemRepository extends YouTubeRepository {
                 return GoogleService::getInstance()->playlistItems->listPlaylistItems('snippet,contentDetails', $queryParams);
             });
         } catch(Exception $e) {
-            echo "josterholt.youtube.channels.{$subscription->snippet->resourceId->channelId}\n";        
             echo "Playlist josterholt.youtube.playlistItems.{$upload_playlist_id}\n";        
             echo $e->getMessage();
         }

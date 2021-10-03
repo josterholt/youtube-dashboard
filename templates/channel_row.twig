@@ -33,7 +33,7 @@
     </div>
     <!-- {{subscription.snippet.resourceId.channelId}} -->
 
-    {% if videos %}
+    {% if play_list_items %}
     <div style="margin-bottom: 25px">
         <button
             class="js-video-list-toggle video-toggle"
@@ -47,11 +47,26 @@
         style="display: none"
         id="js-video-list-{{ subscription.snippet.resourceId.channelId }}"
     >
-        {% for video in videos.0.items %}
+        {% for video in play_list_items.0.items %}
         <li>
-            <img src="{{ video.snippet.thumbnails.default.url }}" />
-            {{ video.snippet.title }} (Published:
-            {{ video.snippet.publishedAt|date('m/d/Y') }})
+            <a
+                href="https://youtube.com/watch?v={{
+                    video.snippet.resourceId.videoId
+                }}"
+                target="_blank"
+                rel="noopener"
+                ><img src="{{ video.snippet.thumbnails.default.url }}"
+            /></a>
+
+            <a
+                href="https://youtube.com/watch?v={{
+                    video.snippet.resourceId.videoId
+                }}"
+                target="_blank"
+                rel="noopener"
+                >{{ video.snippet.title }}</a
+            >
+            (Published: {{ video.snippet.publishedAt|date('m/d/Y') }})
         </li>
         {% endfor %}
     </ul>
