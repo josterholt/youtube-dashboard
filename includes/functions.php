@@ -72,6 +72,7 @@ class GoogleService {
         }
     
         if (empty($accessToken)) {
+            // This is a code smell. Method should return an expected value and shouldn't die.
             self::redirectToAuthorizationPage($client);
             die();
         } else {

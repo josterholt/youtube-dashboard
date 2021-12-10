@@ -1,35 +1,37 @@
 {{ include("header.twig") }}
-<div>
-    <select
-        name="category_select"
-        style="width: 200px; margin-bottom: 10px"
-        js-data-src="categories"
-    >
-        <option disabled selected>Select a Category Filter</option>
-        <option value="NO_FILTER">No Filter</option>
-    </select>
-</div>
+<div class="main-container">
+    <div class="header-container">
+        <h1>YouTube Subscriptions</h1>
+        <select
+            name="category_select"
+            style="width: 200px; margin-bottom: 10px"
+            js-data-src="categories"
+        >
+            <option disabled selected>Select a Category Filter</option>
+            <option value="NO_FILTER">No Filter</option>
+        </select>
+        <div>{{ grouped_channel_sets | length }} subscriptions</div>
+    </div>
 
-<div>{{ grouped_channel_sets | length }} subscriptions</div>
+    {% for set in grouped_channel_sets %} {% if set.category.categoryID == 0 %}
+    <h2>Uncategorized</h2>
+    {% else %}
+    <h2>{{ set.category.categoryTitle }}</h2>
+    {% endif %}
 
-{% for set in grouped_channel_sets %} {% if set.category.categoryID == 0 %}
-<h2>Uncategorized</h2>
-{% else %}
-<h2>{{ set.category.categoryTitle }}</h2>
-{% endif %}
-
-<ul class="formatted-list">
-    {% for channel_set in set.items %}
-    {{
-        include("channel_row.twig", {
-            subscription: channel_set.subscription,
-            channel: channel_set.channel,
-            play_list_items: channel_set.play_list_items,
-            last_activity: channel_set.last_activity
-        })
-    }}
+    <div class="list-container">
+        {% for channel_set in set.items %}
+        {{
+            include("channel_row.twig", {
+                subscription: channel_set.subscription,
+                channel: channel_set.channel,
+                play_list_items: channel_set.play_list_items,
+                last_activity: channel_set.last_activity
+            })
+        }}
+        {% endfor %}
+    </div>
     {% endfor %}
-</ul>
-{% endfor %}
+</div>
 
 {{ include("footer.twig") }}

@@ -1,6 +1,6 @@
-<li>
+<div class="list-row-container">
     <!-- Channel ID: {{ subscription.snippet.resourceId.channelId }} -->
-    <div>
+    <div class="title-container">
         <a
             href="https://youtube.com/channel/{{
                 subscription.snippet.resourceId.channelId
@@ -17,10 +17,10 @@
         >
         ({{ last_activity }})
     </div>
-    <div>
+    <div class="description-container">
         {{ subscription.snippet.description }}
     </div>
-    <div>
+    <div class="controls-container">
         <select
             name="add_category"
             js-channel-id="{{ subscription.snippet.resourceId.channelId }}"
@@ -71,4 +71,4 @@
         {% endfor %}
     </ul>
     {% endif %}
-</li>
+</div>

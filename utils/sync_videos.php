@@ -3,6 +3,9 @@ require_once("includes/header.php");
 
 
 SubscriptionRepository::disableCache();
+ChannelRepository::disableCache();
+PlayListItemRepository::disableCache();
+
 $subscriptions = SubscriptionRepository::getAll();
 
 
@@ -16,6 +19,11 @@ foreach ($subscriptions as  $subscription) {
         continue;
     }
 
-    $upload_playlist_id = $channels[0]->items[0]->contentDetails->relatedPlaylists->uploads;
-    PlayListItemRepository::getByPlayListId($upload_playlist_id);
+    try {
+        $upload_playlist_id = $channels[0]->items[0]->contentDetails->relatedPlaylists->uploads;
+        PlayListItemRepository::getByPlayListId($upload_playlist_id);
+    } catch (\Exception $e) {
+        echo $e->getMessage();
+        echo $e->getTraceAsString();
+    }
 }

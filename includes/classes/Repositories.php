@@ -63,10 +63,17 @@ class SubscriptionRepository extends YouTubeRepository {
         $results = $fetch->get('josterholt.youtube.subscriptions', '.', function ($queryParams) {
             $queryParams['mine'] = true;
 
-            // @todo allow Google service to be assigned outside of this
-            return GoogleService::getInstance()->subscriptions->listSubscriptions('contentDetails,snippet', $queryParams);
+            try {
+                // @todo allow Google service to be assigned outside of this
+                return GoogleService::getInstance()->subscriptions->listSubscriptions('contentDetails,snippet', $queryParams);
+            } catch(\Exception $e) {
+                echo $e->getMessage();
+                echo $e->getTraceAsString();
+                return null;
+            }
+
         });
-    
+
         foreach ($results as $result) {
             foreach ($result->items as $item) {
                 $subscriptions[] = $item;
@@ -94,6 +101,7 @@ class ChannelRepository extends YouTubeRepository {
 
     public static function getBySubscriptionId(string $subscription_id): array {
         $fetch = new Fetch();
+        self::$_useCache? $fetch->enableCache() : $fetch->disableCache();
         $fetch->setRedisClient(RedisService::getInstance()); // This shouldn't be hardcoded.
         
         try {
@@ -117,6 +125,7 @@ class PlayListItemRepository extends YouTubeRepository {
 
     public static function getByPlayListId(string $playlist_id): array {
         $fetch = new Fetch();
+        self::$_useCache? $fetch->enableCache() : $fetch->disableCache();
         $fetch->setRedisClient(RedisService::getInstance()); // This shouldn't be hardcoded.
         
         try {
@@ -125,12 +134,13 @@ class PlayListItemRepository extends YouTubeRepository {
                     'maxResults' => 25,
                     'playlistId' => $playlist_id
                 ];
-    
+
                 return GoogleService::getInstance()->playlistItems->listPlaylistItems('snippet,contentDetails', $queryParams);
             });
-        } catch(Exception $e) {
-            echo "Playlist josterholt.youtube.playlistItems.{$upload_playlist_id}\n";        
+        } catch(\Exception $e) {
+            echo "Playlist josterholt.youtube.playlistItems.{$playlist_id}\n";        
             echo $e->getMessage();
+            return [];
         }
 
         return $playlist_items;
