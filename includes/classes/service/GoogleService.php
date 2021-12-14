@@ -24,6 +24,7 @@ class GoogleService {
         return static::$_instance;
     }
 
+    // TODO: This can probably be merged with getClient
     protected static function getGoogleClient(): \Google\Client
     {
         $client = new \Google_Client();

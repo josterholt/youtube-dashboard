@@ -1,20 +1,21 @@
 <?php
 namespace josterholt\repository;
-use josterholt\service\Fetch;
-use josterholt\service\RedisService;
+
 use josterholt\service\GoogleService;
 
 class ChannelRepository extends YouTubeRepository {
     protected static $_type = "channel";
+    protected $_readAdapter = null;
 
-    public static function getBySubscriptionId(string $subscription_id): array {
-        $fetch = new Fetch();
-        self::$_useCache? $fetch->enableCache() : $fetch->disableCache();
-        $fetch->setRedisClient(RedisService::getInstance()); // This shouldn't be hardcoded.
-        
+    public function setReadAdapter($readAdapter) {
+        $this->_readAdapter = $readAdapter;
+    }
+
+    public function getBySubscriptionId(string $subscription_id): array {
         try {
-            // @todo is there a way to pull channels in bulk?
-            $channels = $fetch->get("josterholt.youtube.channels.{$subscription_id}", '.', function ($queryParams) use($subscription_id)  {
+            // TODO: Is there a way to pull channels in bulk?
+            // TODO: This should throw an informative exception if readAdapter is not set.
+            $channels = $this->_readAdapter->get("josterholt.youtube.channels.{$subscription_id}", '.', function ($queryParams) use($subscription_id)  {
                 $queryParams = [
                     'id' => $subscription_id
                 ];

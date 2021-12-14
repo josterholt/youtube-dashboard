@@ -4,6 +4,12 @@ use \josterholt\repository\SubscriptionRepository;
 use \josterholt\repository\ChannelRepository;
 use \josterholt\repository\PlayListItemRepository;
 use josterholt\service\GoogleService;
+use josterholt\service\RedisService;
+use josterholt\service\Fetch;
+
+$fetch = new Fetch();
+$fetch->enableCache();
+$fetch->setRedisClient(RedisService::getInstance()); // This shouldn't be hardcoded.
 
 // @todo there needs to be a more graceful way to handle no service.
 GoogleService::initialize();
@@ -21,12 +27,13 @@ $subscriptions = SubscriptionRepository::getAll();
 $channels_lookup = [];
 $videos_lookup = [];
 foreach ($subscriptions as  $subscription) {
-    $channels = ChannelRepository::getBySubscriptionId($subscription->snippet->resourceId->channelId);
+    $channelRepo = new ChannelRepository();
+    $channelRepo->setReadAdapter($fetch);
+    $channels = $channelRepo->getBySubscriptionId($subscription->snippet->resourceId->channelId);
 
     if(empty($channels)) {
         continue;
     }
-    echo ".";
 
     try {
         $upload_playlist_id = $channels[0]->items[0]->contentDetails->relatedPlaylists->uploads;
