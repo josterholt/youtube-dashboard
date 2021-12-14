@@ -1,4 +1,6 @@
 <?php
+namespace josterholt\service;
+
 class Fetch
 {
     private $_redis = null;
@@ -8,7 +10,7 @@ class Fetch
      * @param Redislabs\Module\ReJSON\ReJSON $redis
      * @return void
      */
-    public function setRedisClient(Redislabs\Module\ReJSON\ReJSON $redis)
+    public function setRedisClient(\Redislabs\Module\ReJSON\ReJSON $redis)
     {
         $this->_redis = $redis;
     }

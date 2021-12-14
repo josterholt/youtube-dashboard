@@ -5,5 +5,11 @@
         "vlucas/phpdotenv": "5.3.0",
         "twig/twig": "^3.3",
         "phpunit/phpunit": " ^9.5"
+    },
+    "autoload": {
+        "psr-4": {
+            "josterholt\\repository\\": "includes/classes/repository/",
+            "josterholt\\service\\": "includes/classes/service/"
+        }
     }
 }
