@@ -11,13 +11,13 @@ $twig = getTwig();
 $lastActivityLookup = [];
 
 $category_title_lookup = [];
-$data = josterholt\repository\CategoryRepository::getAll();
+$data = josterholt\Repository\CategoryRepository::getAll();
 foreach($data as $category) {
     $category_title_lookup[$category->id]['categoryTitle'] = $category->title;
 }
 
 $item_category_lookup = [];
-$data = josterholt\repository\CategoryRepository::getItems();
+$data = josterholt\Repository\CategoryRepository::getItems();
 if(!empty($data)) {
     foreach ($data['mapping'] as $map) {
         if(empty($map['itemID'])) {
@@ -35,10 +35,10 @@ if(!empty($data)) {
 $channels_lookup = [];
 $play_list_items_lookup = [];
 
-$subscriptions = josterholt\repository\SubscriptionRepository::getAll();
+$subscriptions = josterholt\Repository\SubscriptionRepository::getAll();
 foreach ($subscriptions as  $subscription) {
     // @todo is there a way to pull channels in bulk?
-    $channels = josterholt\repository\ChannelRepository::getBySubscriptionId($subscription->snippet->resourceId->channelId);
+    $channels = josterholt\Repository\ChannelRepository::getBySubscriptionId($subscription->snippet->resourceId->channelId);
 
     if(empty($channels)) {
         continue;
@@ -47,7 +47,7 @@ foreach ($subscriptions as  $subscription) {
     $channels_lookup[$subscription->snippet->resourceId->channelId] = $channels[0]->items[0];
 
     $upload_playlist_id = $channels[0]->items[0]->contentDetails->relatedPlaylists->uploads;
-    $play_list_items = josterholt\repository\PlayListItemRepository::getByPlaylistId($upload_playlist_id);
+    $play_list_items = josterholt\Repository\PlayListItemRepository::getByPlaylistId($upload_playlist_id);
 
 
     if(!empty($play_list_items)) {

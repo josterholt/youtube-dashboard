@@ -1,6 +1,6 @@
 <?php
-namespace josterholt\repository;
-use josterholt\repository\IGenericRepository;
+namespace josterholt\Repository;
+use josterholt\Repository\IGenericRepository;
 
 /**
  * This repository type will retrieve YouTube videos, 

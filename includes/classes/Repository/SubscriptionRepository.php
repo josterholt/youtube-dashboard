@@ -1,8 +1,8 @@
 <?php
-namespace josterholt\repository;
-use josterholt\service\GoogleService;
-use josterholt\service\RedisService;
-use josterholt\service\Fetch;
+namespace josterholt\Repository;
+use josterholt\Service\GoogleService;
+use josterholt\Service\RedisService;
+use josterholt\Service\Fetch;
 
 class SubscriptionRepository extends YouTubeRepository {
     protected static $_type = 'subscription';

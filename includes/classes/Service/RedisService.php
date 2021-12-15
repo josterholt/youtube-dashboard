@@ -1,5 +1,5 @@
 <?php
-namespace josterholt\service;
+namespace josterholt\Service;
 
 class RedisService {
     protected static $_instance = null;

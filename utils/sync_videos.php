@@ -1,11 +1,11 @@
 <?
 require_once("includes/header.php");
-use \josterholt\repository\SubscriptionRepository;
-use \josterholt\repository\ChannelRepository;
-use \josterholt\repository\PlayListItemRepository;
-use josterholt\service\GoogleService;
-use josterholt\service\RedisService;
-use josterholt\service\Fetch;
+use \josterholt\Repository\SubscriptionRepository;
+use \josterholt\Repository\ChannelRepository;
+use \josterholt\Repository\PlayListItemRepository;
+use josterholt\Service\GoogleService;
+use josterholt\Service\RedisService;
+use josterholt\Service\Fetch;
 
 $fetch = new Fetch();
 $fetch->enableCache();

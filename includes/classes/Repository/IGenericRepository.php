@@ -1,5 +1,5 @@
 <?php
-namespace josterholt\repository;
+namespace josterholt\Repository;
 
 interface IGenericRepository { 
     public static function getAll(): array;

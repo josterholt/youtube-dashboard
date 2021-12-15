@@ -1,5 +1,5 @@
 <?php
-namespace josterholt\service;
+namespace josterholt\Service;
 
 /**
  * Singleton utility class for holding Google API client

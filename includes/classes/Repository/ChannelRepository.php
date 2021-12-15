@@ -1,7 +1,7 @@
 <?php
-namespace josterholt\repository;
+namespace josterholt\Repository;
 
-use josterholt\service\GoogleService;
+use josterholt\Service\GoogleService;
 
 class ChannelRepository extends YouTubeRepository {
     protected static $_type = "channel";

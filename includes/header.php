@@ -1,5 +1,5 @@
 <?php
-use josterholt\service\RedisService;
+use josterholt\Service\RedisService;
 
 /**
  * BEGIN AUTOLOAD SCRIPTS

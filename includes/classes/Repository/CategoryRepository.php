@@ -1,6 +1,6 @@
 <?php
-namespace josterholt\repository;
-use josterholt\service\RedisService;
+namespace josterholt\Repository;
+use josterholt\Service\RedisService;
 
 // TODO: This needs to only implement IGenericRepository and not extend.
 class CategoryRepository extends YouTubeRepository {
