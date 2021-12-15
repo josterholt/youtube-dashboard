@@ -7,9 +7,8 @@
         "phpunit/phpunit": " ^9.5"
     },
     "autoload": {
-        "psr-4": {
-            "josterholt\\Repository\\": "includes/classes/Repository/",
-            "josterholt\\Service\\": "includes/classes/Service/"
-        }
+        "classmap": [
+            "includes/classes/"
+        ]
     }
 }
