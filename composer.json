@@ -8,8 +8,8 @@
     },
     "autoload": {
         "psr-4": {
-            "josterholt\\repository\\": "./includes/classes/repository/",
-            "josterholt\\service\\": "./includes/classes/service/"
+            "josterholt\\Repository\\": "./includes/classes/Repository/",
+            "josterholt\\Service\\": "./includes/classes/Service/"
         }
     }
 }
