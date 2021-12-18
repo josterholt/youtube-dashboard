@@ -1,6 +1,8 @@
 <?php
 namespace josterholt\Service;
 
+use Redislabs\Module\ReJSON\ReJSON;
+
 class RedisService {
     protected static $_instance = null;
 
@@ -8,7 +10,7 @@ class RedisService {
         self::getInstance();
     }
 
-    public static function getInstance() {
+    public static function getInstance(): ReJSON {
         if(self::$_instance == null) {
             self::$_instance = self::getReJSONClient($_ENV['REDIS_URL'], $_ENV['REDIS_PORT'], $_ENV['REDIS_PASSWORD']);
         }
@@ -23,7 +25,7 @@ class RedisService {
      * @param string $password
      * @return Redislabs\Module\ReJSON\ReJSON
      */
-    protected static function getReJSONClient(string $url, int $port, string $password = null): \Redislabs\Module\ReJSON\ReJSON
+    protected static function getReJSONClient(string $url, int $port, string $password = null): ReJSON
     {
         $redisClient = new \Redis();
         $redisClient->connect($url, $port);

@@ -1,11 +1,11 @@
 <?php
 
 use PHPUnit\Framework\TestCase;
-use josterholt\Service\Fetch;
+use josterholt\Service\GoogleAPIFetch;
 
 class ChannelRepositoryTest extends TestCase {
     public function testCanGetSubscriptionById() {
-        $readAdapter = $this->createStub(Fetch::class);
+        $readAdapter = $this->createStub(GoogleAPIFetch::class);
         $readAdapter->method('get')->willReturn(['Placeholder']);
 
         $channelRepo = new josterholt\Repository\ChannelRepository();

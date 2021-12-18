@@ -4,7 +4,7 @@ namespace josterholt\Repository;
 use josterholt\Service\GoogleService;
 
 class ChannelRepository extends YouTubeRepository {
-    protected static $_type = "channel";
+    protected $_type = "channel";
     protected $_readAdapter = null;
 
     public function setReadAdapter($readAdapter) {

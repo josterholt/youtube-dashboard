@@ -5,10 +5,10 @@ use \josterholt\Repository\ChannelRepository;
 use \josterholt\Repository\PlayListItemRepository;
 use josterholt\Service\GoogleService;
 use josterholt\Service\RedisService;
-use josterholt\Service\Fetch;
+use josterholt\Service\GoogleAPIFetch;
 
-$fetch = new Fetch();
-$fetch->enableCache();
+$fetch = new GoogleAPIFetch(RedisService::getInstance());
+$fetch->enableReadCache();
 $fetch->setRedisClient(RedisService::getInstance()); // This shouldn't be hardcoded.
 
 // @todo there needs to be a more graceful way to handle no service.
@@ -17,12 +17,15 @@ if(GoogleService::getInstance() == null) {
     die("Unable to connect to Google Service\n");
 }
 
-SubscriptionRepository::disableCache();
-ChannelRepository::disableCache();
-PlayListItemRepository::disableCache();
+$subscriptionRepository = new SubscriptionRepository();
+$subscriptionRepository->disableReadCache();
+$subscriptions = $subscriptionRepository->getAll();
 
-$subscriptions = SubscriptionRepository::getAll();
+$channelRepository = new ChannelRepository();
+$channelRepository->disableReadCache();
 
+$playListItemRepository = new PlayListItemRepository();
+$playListItemRepository->disableReadCache();
 
 $channels_lookup = [];
 $videos_lookup = [];
@@ -37,7 +40,8 @@ foreach ($subscriptions as  $subscription) {
 
     try {
         $upload_playlist_id = $channels[0]->items[0]->contentDetails->relatedPlaylists->uploads;
-        PlayListItemRepository::getByPlayListId($upload_playlist_id);
+        $playListItemRepository = new PlayListItemRepository();
+        $playListItemRepository->getByPlayListId($upload_playlist_id);
     } catch (\Exception $e) {
         echo $e->getMessage();
         echo $e->getTraceAsString();

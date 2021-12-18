@@ -1,12 +1,38 @@
 <?php
 namespace josterholt\Service;
 
-class Fetch
+
+/**
+ * GoogleAPIFetch is a wrapper for Google API that caches results.
+ * 
+ * GoogleAPIFetch uses Redis (with RedisJson module) to cache results of the query (function)
+ * passed into the get() method. Results are cached using the key and path passed into the get() method.
+ * 
+ * Example usage:
+ * $fetch = new GoogleAPIFetch($redisInstance);
+ * $results = $fetch->get("key", "json.path", function () {
+ *     return file_get_contents("https://placeholder.com/api/endpoint)
+ * });
+ */
+class GoogleAPIFetch
 {
     private $_redis = null;
-    protected $_useCache = true;
+    protected $_useReadCache = true;
 
     /**
+     * Accepts a Redis client to use for caching as an argument.
+     * 
+     * @param \Redislabs\Module\ReJSON\ReJSON $redis
+     * @return void
+     */
+    public function __construct($redis)
+    {
+        $this->_redis = $redis;
+    }
+
+    /**
+     * Sets Redis client to use for caching.
+     * 
      * @param Redislabs\Module\ReJSON\ReJSON $redis
      * @return void
      */
@@ -18,28 +44,32 @@ class Fetch
     /**
      * Fetch will use cache before calling external resource.
      */
-    public function enableCache() {
-        $this->_useCache = true;
+    public function enableReadCache() {
+        $this->_useReadCache = true;
     }
 
     /**
      * Fetch will retrieve fresh data from external resource,
-     * even if cache exists.
+     * even if cache exists. Results of get() will be cached.
      */
-    public function disableCache() {
-        $this->_useCache = false;
+    public function disableReadCache() {
+        $this->_useReadCache = false;
     }
 
     /**
+     * Returns query response data. Cached response is returned
+     * if it exists and cache is enabled, otherwise a new call
+     * is made against Google API.
+     * 
      * @param string $key
      * @param string $path
-     * @param string $query
+     * @param function $query
      * @param $forceRefresh
      * @return array of responses
      */
     public function get($key, $path, $query)
     {
-        if ($this->_useCache) {
+        if ($this->_useReadCache) {
             $cache = $this->_redis->get($key, $path);
             if (!empty($cache)) {
                 echo "<!-- Using cache for {$key} -->\n";
@@ -57,7 +87,7 @@ class Fetch
                 $loop = false;
                 continue;
             } else {
-                $responses[] = $response->toSimpleObject();
+                $responses[] = $response->toSimpleObject(); // \Google\Collection
             }
 
 

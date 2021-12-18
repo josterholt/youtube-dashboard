@@ -2,9 +2,9 @@
 namespace josterholt\Repository;
 
 interface IGenericRepository { 
-    public static function getAll(): array;
-    public static function getById(int $id): object|null;
-    public static function create(object $record): bool;
-    public static function update(object $record): bool;
-    public static function delete($id): bool;
+    public function getAll(): array;
+    public function getById(int $id): object|null;
+    public function create(object $record): bool;
+    public function update(object $record): bool;
+    public function delete($id): bool;
 }

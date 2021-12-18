@@ -7,39 +7,39 @@ use josterholt\Repository\IGenericRepository;
  * starting with CACHE and then querying source (YouTube).
  */
 abstract class YouTubeRepository implements IGenericRepository  {
-    protected static $_type = null;
-    protected static $_service = null;
-    protected static $_useCache = true;
+    protected $_type = null;
+    protected $_service = null;
+    protected $_useCache = true;
 
-    public static function setGoogleService(\Google\Service $service) {
-        self::$_service = $service;
+    public function setGoogleService(\Google\Service $service) {
+        $this->_service = $service;
     }
 
-    public static function enableCache() {
-        self::$_useCache = true;
+    public function enableReadCache() {
+        $this->_useCache = true;
     }
 
-    public static function disableCache() {
-        self::$_useCache = false;
+    public function disableReadCache() {
+        $this->_useCache = false;
     }
 
-    public static function getAll(): array {
+    public function getAll(): array {
         return [];
     }
 
-    public static function getById($id): object|null {
+    public function getById($id): object|null {
         return null;
     }
     
-    public static function create(object $record): bool {
+    public function create(object $record): bool {
         return false;
     }
 
-    public static function update(object $record): bool {
+    public function update(object $record): bool {
         return false;
     }
 
-    public static function delete($id): bool {
+    public function delete($id): bool {
         return false;
     }
 }

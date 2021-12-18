@@ -2,14 +2,14 @@
 namespace josterholt\Repository;
 use josterholt\Service\GoogleService;
 use josterholt\Service\RedisService;
-use josterholt\Service\Fetch;
+use josterholt\Service\GoogleAPIFetch;
 
 class PlayListItemRepository extends YouTubeRepository {
-    protected static $_type = "video";
+    protected $_type = "video";
 
-    public static function getByPlayListId(string $playlist_id): array {
-        $fetch = new Fetch();
-        self::$_useCache? $fetch->enableCache() : $fetch->disableCache();
+    public function getByPlayListId(string $playlist_id): array {
+        $fetch = new GoogleAPIFetch(RedisService::getInstance());
+        $this->_useCache? $fetch->enableReadCache() : $fetch->disableReadCache();
         $fetch->setRedisClient(RedisService::getInstance()); // This shouldn't be hardcoded.
         
         try {

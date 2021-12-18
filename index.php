@@ -1,4 +1,11 @@
 <?
+
+use josterholt\Repository\CategoryRepository;
+use josterholt\Repository\PlayListItemRepository;
+use josterholt\Repository\SubscriptionRepository;
+use josterholt\Service\GoogleAPIFetch;
+use josterholt\Service\RedisService;
+
 require_once("includes/header.php");
 
 $twig = getTwig();
@@ -11,13 +18,16 @@ $twig = getTwig();
 $lastActivityLookup = [];
 
 $category_title_lookup = [];
-$data = josterholt\Repository\CategoryRepository::getAll();
+$categoryRepository = new CategoryRepository();
+$data = $categoryRepository->getAll();
 foreach($data as $category) {
     $category_title_lookup[$category->id]['categoryTitle'] = $category->title;
 }
 
 $item_category_lookup = [];
-$data = josterholt\Repository\CategoryRepository::getItems();
+$categoryRepository = new CategoryRepository();
+
+$data = $categoryRepository->getItems();
 if(!empty($data)) {
     foreach ($data['mapping'] as $map) {
         if(empty($map['itemID'])) {
@@ -35,10 +45,17 @@ if(!empty($data)) {
 $channels_lookup = [];
 $play_list_items_lookup = [];
 
-$subscriptions = josterholt\Repository\SubscriptionRepository::getAll();
+$subscriptionRepository = new SubscriptionRepository();
+$subscriptions = $subscriptionRepository->getAll();
 foreach ($subscriptions as  $subscription) {
-    // @todo is there a way to pull channels in bulk?
-    $channels = josterholt\Repository\ChannelRepository::getBySubscriptionId($subscription->snippet->resourceId->channelId);
+    $fetch = new GoogleAPIFetch(RedisService::getInstance());
+    $fetch->enableReadCache();
+
+    $channel = new josterholt\Repository\ChannelRepository();
+    $channel->setReadAdapter($fetch);
+
+    // @todo is there a way to pull channels in bulk?    
+    $channels = $channel->getBySubscriptionId($subscription->snippet->resourceId->channelId);
 
     if(empty($channels)) {
         continue;
@@ -47,7 +64,8 @@ foreach ($subscriptions as  $subscription) {
     $channels_lookup[$subscription->snippet->resourceId->channelId] = $channels[0]->items[0];
 
     $upload_playlist_id = $channels[0]->items[0]->contentDetails->relatedPlaylists->uploads;
-    $play_list_items = josterholt\Repository\PlayListItemRepository::getByPlaylistId($upload_playlist_id);
+    $playListItemRepository = new PlayListItemRepository();
+    $play_list_items = $playListItemRepository->getByPlaylistId($upload_playlist_id);
 
 
     if(!empty($play_list_items)) {
