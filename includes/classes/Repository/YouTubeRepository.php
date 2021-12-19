@@ -34,6 +34,10 @@ abstract class YouTubeRepository implements IGenericRepository  {
         $this->_useCache = false;
     }
 
+    public function getReadCacheState() {
+        return $this->_useCache;
+    }
+
     public function getAll(): array {
         return [];
     }

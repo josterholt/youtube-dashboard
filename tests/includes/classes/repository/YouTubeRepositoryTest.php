@@ -1,51 +1,75 @@
 <?php
 
+use josterholt\Repository\YouTubeRepository;
+use josterholt\Service\GoogleAPIFetch;
+use josterholt\Service\GoogleService;
 use PHPUnit\Framework\TestCase;
 
 class YouTubeRepositoryTest extends TestCase
 {
-    public function canSetGoogleService()
-    {
-        $stub = $this->getMockForAbstractClass(YouTubeRepository::class);
-        $stub->setGoogleService();
+    public function testCanCreateYouTubeRepositoryObject() {
+        $readAdapter = $this->createStub(GoogleAPIFetch::class);
+        $googleService = $this->createStub(GoogleService::class);
+
+        $mock = $this->getMockBuilder(YouTubeRepository::class)
+        ->setConstructorArgs([$readAdapter, $googleService])
+        ->getMockForAbstractClass();
+        $this->assertNotEmpty($mock);
     }
 
-    public function willFailGracefullyWhenServiceIsNotSet()
+    public function testWillThrowExceptionIfArgumentDependenciesMissing() {
+        $this->expectException(TypeError::class);
+        $stub = $this->getMockBuilder(YouTubeRepository::class)
+            ->setConstructorArgs([null, null])
+            ->getMockForAbstractClass();
+    }
+    
+    public function testCanEnableCache()
+    {
+        $readAdapter = $this->createStub(GoogleAPIFetch::class);
+        $googleService = $this->createStub(GoogleService::class);
+        
+        $mock = $this->getMockForAbstractClass(YouTubeRepository::class, [$readAdapter, $googleService]);
+        $this->assertTrue($mock->getReadCacheState(), 'Cache should be enabled by default');
+        $mock->disableReadCache(); // Cache is enabled by default
+
+        $mock->enableReadCache();
+        $this->assertTrue($mock->getReadCacheState());
+    }
+
+    public function testCanDisableCache()
+    {
+        $readAdapter = $this->createStub(GoogleAPIFetch::class);
+        $googleService = $this->createStub(GoogleService::class);
+        
+        $mock = $this->getMockForAbstractClass(YouTubeRepository::class, [$readAdapter, $googleService]);
+        $this->assertTrue($mock->getReadCacheState(), 'Cache should be enabled by default');
+
+        $mock->disableReadCache();
+        $this->assertFalse($mock->getReadCacheState());
+    }
+
+    public function testCanGetAllItems()
     {
         $this->markTestIncomplete("Placeholder");
     }
 
-    public function canEnableCache()
+    public function testCanGetItemById()
     {
         $this->markTestIncomplete("Placeholder");
     }
 
-    public function canDisableCache()
+    public function testCanCreateItemInDataStore()
     {
         $this->markTestIncomplete("Placeholder");
     }
 
-    public function canGetAllItems()
+    public function testCanUpdateItemInDataStore()
     {
         $this->markTestIncomplete("Placeholder");
     }
 
-    public function canGetItemById()
-    {
-        $this->markTestIncomplete("Placeholder");
-    }
-
-    public function canCreateItemInDataStore()
-    {
-        $this->markTestIncomplete("Placeholder");
-    }
-
-    public function canUpdateItemInDataStore()
-    {
-        $this->markTestIncomplete("Placeholder");
-    }
-
-    public function canDeleteItemInDataStore()
+    public function testCanDeleteItemInDataStore()
     {
         $this->markTestIncomplete("Placeholder");
     }
