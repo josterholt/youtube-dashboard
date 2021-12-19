@@ -3,40 +3,14 @@
 use josterholt\Repository\CategoryRepository;
 use josterholt\Repository\PlayListItemRepository;
 use josterholt\Repository\SubscriptionRepository;
-use josterholt\Service\GoogleAPIFetch;
-use DI\Container;
 use josterholt\Repository\ChannelRepository;
-use Redislabs\Module\ReJSON\ReJSON;
-use josterholt\Service\GoogleService;
 
-require_once("includes/header.php");
-GoogleService::initialize();
-$container = new Container();
-
-// REDIS START
-$redisClient = $container->get(\Redis::class);
-$redisURL = $_ENV['REDIS_URL'];
-$redisPort = $_ENV['REDIS_PORT'];
-$redisPassword = $_ENV['REDIS_PASSWORD'];
-$redisClient->connect($redisURL, $redisPort);
-if ($redisPassword != null) {
-    $redisClient->auth($redisPassword);
-}
-
-register_shutdown_function(function () use ($redisClient) {
-    $redisClient->close();
-});
-
-$redisJSONClient = ReJSON::createWithPhpRedis($redisClient);
-$container->set(ReJSON::class, $redisJSONClient);
-// REDIS END
-
-// FETCH START
-$fetchBuilder = \DI\create(GoogleAPIFetch::class);
-$fetchBuilder->constructor(\DI\get(ReJSON::class));
-$fetchBuilder->method('enableReadCache', \DI\get(GoogleAPIFetch::class));
-$container->set(GoogleAPIFetch::class, $fetchBuilder);
-// FETCH END
+/**
+ * Bootstrap includes container and logger initialization.
+ * TODO: See if initialization can be moved into this file 
+ * with a one liner for each initialization.
+ */
+require_once("includes/bootstrap.php");
 
 $twig = getTwig();
 

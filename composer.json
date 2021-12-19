@@ -5,7 +5,9 @@
         "vlucas/phpdotenv": "5.3.0",
         "twig/twig": "^3.3",
         "phpunit/phpunit": " ^9.5",
-        "php-di/php-di": "^6.3"
+        "php-di/php-di": "^6.3",
+        "monolog/monolog": "^2.3",
+        "psr/log": "^3.0"
     },
     "autoload": {
         "classmap": [

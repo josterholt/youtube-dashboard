@@ -5,6 +5,8 @@ use josterholt\Service\GoogleAPIFetch;
 
 class GoogleAPIFetchTest extends TestCase {
     public function testCanCallGet() {
+        $logger = $this->getMockBuilder(Psr\Log\LoggerInterface::class)
+        ->getMockForAbstractClass();
         $cacheInstance = $this->createMock('\Redislabs\Module\ReJSON\ReJSON');
         $cacheInstance->expects($this->once())->method("get");
         $cacheInstance->expects($this->once())->method("set");
@@ -16,7 +18,7 @@ class GoogleAPIFetchTest extends TestCase {
        
 
 
-        $fetch = new GoogleAPIFetch($cacheInstance);
+        $fetch = new GoogleAPIFetch($logger, $cacheInstance);
         $fetch->get("test.namespace", '.', $callback);
     }
 }   

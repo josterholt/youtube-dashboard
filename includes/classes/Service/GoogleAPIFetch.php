@@ -1,6 +1,7 @@
 <?php
 namespace josterholt\Service;
 
+use Psr\Log\LoggerInterface;
 use Redislabs\Module\ReJSON\ReJSON;
 
 /**
@@ -26,8 +27,9 @@ class GoogleAPIFetch
      * @param \Redislabs\Module\ReJSON\ReJSON $redis
      * @return void
      */
-    public function __construct(ReJSON $redis)
+    public function __construct(LoggerInterface $logger, ReJSON $redis)
     {
+        $this->_logger = $logger;
         $this->_redis = $redis;
     }
 
@@ -86,6 +88,7 @@ class GoogleAPIFetch
             $response = $query($queryParams);
             if (empty($response)) {
                 $loop = false;
+                $this->_logger->debug("Empty response.", $queryParams);
                 continue;
             } else {
                 $responses[] = $response->toSimpleObject(); // \Google\Collection
@@ -97,9 +100,13 @@ class GoogleAPIFetch
                 $loop = false;
             } else {
                 $queryParams['pageToken'] = $response->getNextPageToken();
+                $this->_logger->debug("Page token set to {$queryParams['pageToken']}");
             }
         }
-        $this->_redis->set($key, $path, json_encode($responses)); // Support array of requests
+
+        $responsesJSONEncoded = json_encode($responses);
+        $this->_logger->debug("|Setting cache record.", ["key" => $key, "path" => $path, "length" => strlen($responsesJSONEncoded)]);
+        $this->_redis->set($key, $path, $responsesJSONEncoded); // Support array of requests
 
         return $responses;
     }

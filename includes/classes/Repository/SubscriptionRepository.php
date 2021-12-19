@@ -1,37 +1,66 @@
 <?php
 namespace josterholt\Repository;
-use josterholt\Service\GoogleService;
-use josterholt\Service\RedisService;
-use josterholt\Service\GoogleAPIFetch;
+
 
 class SubscriptionRepository extends YouTubeRepository {
     protected $_type = 'subscription';
     protected $_readAdapter = null;
 
-    public function __construct() {
-        $this->_setupRedis();
+    /*
+     *  Fetch channel subscriptions of authenticated user.
+     */ 
+    public function getAllSubscriptions(): array {
+        return $this->_processResults($this->getSubscriptionsFromAPI());
     }
 
-    protected function _setupRedis() {
-        $this->_readAdapter = $this->_getReadAdapter();
-    }
+    /**
+     * Queries YouTube API for subscriptions. A paginated list of subscriptions are returned.
+     * Expected results from _readAdapter is the paginated result set of API response from Google.
+     * 
+     * Subscription List Response Spec: https://developers.google.com/youtube/v3/docs/subscriptions/list
+     * 
+     * @return array
+     * [
+     *     {SubscriptionListResponse(s)},
+     * ]
+     * 
+     */
+    public function getSubscriptionsFromAPI(): array {
 
-    public function _getReadAdapter() {
-        return new GoogleAPIFetch(RedisService::getInstance()); // This is a code smell. Redis should be injected.
-    }
-
-    public function getAll(): array {
-        //$this->_useCache? $this->_fetch->enableReadCache() : $fetch->disableReadCache();
-    
-        // Fetch channel subscriptions of authenticated user.
-        $results = $this->_readAdapter->get('josterholt.youtube.subscriptions', '.', function ($queryParams) {
+        return $this->_readAdapter->get('josterholt.youtube.subscriptions', '.', function ($queryParams) {
             $queryParams['mine'] = true;
-
-            die("foo");
+            
             // @todo allow Google service to be assigned outside of this
-            return GoogleService::getInstance()->subscriptions->listSubscriptions('contentDetails,snippet', $queryParams);
+            return $this->_service->subscriptions->listSubscriptions('contentDetails,snippet', $queryParams);
         });
+    }
 
+
+    /**
+     * Merges paginated API results into a flat list of subscriptions.
+     * 
+     * TODO: This needs to be refactored so that data shape conversion is done elsewhere.
+     * (Might make more sense for this to be in the read adapter)
+     * 
+     * Subscription List Response Spec: https://developers.google.com/youtube/v3/docs/subscriptions/list
+     * Subscriptions Spec: https://developers.google.com/youtube/v3/docs/subscriptions
+     * 
+     * @param array $results
+     * [
+     *     SubscriptionListResponse(s)
+     * ]
+     * 
+     * @return array
+     * [
+     *    {
+     *        items: [
+     *            Subscription Resource Object(s)
+     *        ]
+     *    }
+     * ]
+     * 
+     */
+    protected function _processResults(Array $results) {       
         $subscriptions = [];
         if($results) {
             foreach ($results as $result) {
@@ -44,5 +73,5 @@ class SubscriptionRepository extends YouTubeRepository {
         }
 
         return $subscriptions;
-    }    
+    }
 }

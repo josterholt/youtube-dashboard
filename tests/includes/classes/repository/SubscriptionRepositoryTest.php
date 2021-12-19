@@ -4,41 +4,129 @@ use Google\Collection;
 use PHPUnit\Framework\TestCase;
 use josterholt\Repository\SubscriptionRepository;
 use josterholt\Service\GoogleAPIFetch;
-use josterholt\Service\RedisService;
 use Redislabs\Module\ReJSON\ReJSON;
+use josterholt\Service\GoogleService;
 
 class SubscriptionRepositoryTest extends TestCase {
-    public function testCanGetAll() {
-        $mockCollection = $this->createMock(Collection::class);
-        $mockCollection->items = [
-            ["Testing"]
+    // public function testFetchAllSubscriptions() {
+    //     $mockCollection = $this->createMock(Collection::class);
+    //     $mockCollection->items = [
+    //         ["Testing"]
+    //     ];
+        
+        
+    //     $test_subscriptions = [
+    //             $mockCollection,
+    //             $mockCollection,
+    //     ];
+        
+    //     $logger = $this->createStub();
+    //     $googleService = $this->createStub();
+
+    //     $googleAPIFetch = $this->getMockBuilder(GoogleAPIFetch::class)
+    //         ->setConstructorArgs([$logger, $redis])
+    //         ->getMock();
+
+    //     $googleAPIFetch->method('get')
+    //         ->willReturn($test_subscriptions);        
+
+    //     // Initial object with mocked GoogleAPIFetch and RedisJSON
+    //     $subscriptionRepository->__construct($logger, $googleAPIFetch, $googleService);
+        
+    //     $this->assertCount(count($test_subscriptions), $subscriptionRepository->getAllSubscriptions());
+
+
+    // }
+
+    /**
+     * Tests getSubscriptionsFromAPI for proper retrieval of data from reader adapter.
+     * Results returned by mock will be the same as those returned by this method.
+     */
+    public function testGetSubscriptionsFromAPIReturnsCorrectResults() {
+        /**
+         * SETUP BEGINS
+         */
+        $test_subscriptions = [1, 2]; 
+        
+
+        $logger = $this->getMockBuilder(Psr\Log\LoggerInterface::class)
+        ->getMockForAbstractClass();
+        
+        $redis = $this->createStub(ReJSON::class);
+        $googleService = $this->createStub(GoogleService::class);
+
+        $googleAPIFetch = $this->getMockBuilder(GoogleAPIFetch::class)
+            ->setConstructorArgs([$logger, $redis])
+            ->getMock();
+
+        $googleAPIFetch->method('get')
+            ->willReturn($test_subscriptions);
+        /**
+         * SETUP ENDS
+         */
+        
+        $subscriptionRepository = new SubscriptionRepository($logger, $googleAPIFetch, $googleService);
+        $subscription_results = $subscriptionRepository->getSubscriptionsFromAPI();
+
+        $this->assertCount(count($test_subscriptions), $subscription_results);
+    }
+
+    /**
+     * Tests getSubscriptionsFromAPI for proper retrieval of data from reader adapter.
+     * Results returned by mock will be the same as those returned by this method.
+     */
+    public function testGetAllSubscriptionsFromAPI() {
+        /**
+         * SETUP BEGINS
+         */
+        $api_response = [
+            (object) [
+                "items" => [
+                    [ "id" => 1 ],
+                    [ "id" => 2 ],
+                ],
+            ],
+            (object) [
+                "items" => [
+                    [ "id" => 3 ],
+                    [ "id" => 4 ],
+                ],
+            ],
+            (object) [
+                "items" => [
+                    [ "id" => 5 ],
+                    [ "id" => 6 ],
+                ],
+            ]
         ];
-        
-        
-        $test_subscriptions = [
-                $mockCollection,
-                $mockCollection,
+
+        $expected_response = [
+            [ "id" => 1 ],
+            [ "id" => 2 ],
+            [ "id" => 3 ],
+            [ "id" => 4 ],
+            [ "id" => 5 ],
+            [ "id" => 6 ],
         ];
 
+
+        $logger = $this->getMockBuilder(Psr\Log\LoggerInterface::class)
+        ->getMockForAbstractClass();
         
-        $mockSubscriptionRepository = $this->getMockBuilder(SubscriptionRepository::class)
-        ->disableOriginalConstructor()
-        ->onlyMethods(["_getReadAdapter"])
-        ->getMock();
+        $redis = $this->createStub(ReJSON::class);
+        $googleService = $this->createStub(GoogleService::class);
+
+        $googleAPIFetch = $this->getMockBuilder(GoogleAPIFetch::class)
+            ->setConstructorArgs([$logger, $redis])
+            ->getMock();
+
+        $googleAPIFetch->method('get')
+            ->willReturn($api_response);
+        /**
+         * SETUP ENDS
+         */
         
-        $mockGoogleAPIFetch = $this->createMock(GoogleAPIFetch::class);
-        $mockGoogleAPIFetch->method('get')
-        ->willReturn($test_subscriptions);
-
-        $mockSubscriptionRepository->expects($this->any())
-        ->method('_getReadAdapter')
-        ->willReturn($this->returnValue($mockGoogleAPIFetch));
-
-        // Initial object with mocked GoogleAPIFetch and RedisJSON
-        $mockSubscriptionRepository->__construct();
-        
-        $this->assertCount(count($test_subscriptions), $mockSubscriptionRepository->getAll());
-
-
+        $subscriptionRepository = new SubscriptionRepository($logger, $googleAPIFetch, $googleService);
+        $this->assertCount(count($expected_response), $subscriptionRepository->getAllSubscriptions());
     }
 }   

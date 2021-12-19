@@ -16,8 +16,7 @@ class PlayListItemRepository extends YouTubeRepository {
                 return $this->_service::getInstance()->playlistItems->listPlaylistItems('snippet,contentDetails', $queryParams);
             });
         } catch(\Exception $e) {
-            //echo "Playlist youtube.playlistItems.{$playlist_id}\n";        
-            //echo $e->getMessage();
+            $this->_logger->error("Unable to access Playlist youtube.playlistItems.{$playlist_id}\n{$e->getMessage()}");
             return [];
         }
 

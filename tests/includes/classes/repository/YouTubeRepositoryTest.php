@@ -8,11 +8,13 @@ use PHPUnit\Framework\TestCase;
 class YouTubeRepositoryTest extends TestCase
 {
     public function testCanCreateYouTubeRepositoryObject() {
+        $logger = $this->getMockBuilder(Psr\Log\LoggerInterface::class)
+        ->getMockForAbstractClass();        
         $readAdapter = $this->createStub(GoogleAPIFetch::class);
         $googleService = $this->createStub(GoogleService::class);
 
         $mock = $this->getMockBuilder(YouTubeRepository::class)
-        ->setConstructorArgs([$readAdapter, $googleService])
+        ->setConstructorArgs([$logger, $readAdapter, $googleService])
         ->getMockForAbstractClass();
         $this->assertNotEmpty($mock);
     }
@@ -26,10 +28,12 @@ class YouTubeRepositoryTest extends TestCase
     
     public function testCanEnableCache()
     {
+        $logger = $this->getMockBuilder(Psr\Log\LoggerInterface::class)
+        ->getMockForAbstractClass();        
         $readAdapter = $this->createStub(GoogleAPIFetch::class);
         $googleService = $this->createStub(GoogleService::class);
         
-        $mock = $this->getMockForAbstractClass(YouTubeRepository::class, [$readAdapter, $googleService]);
+        $mock = $this->getMockForAbstractClass(YouTubeRepository::class, [$logger, $readAdapter, $googleService]);
         $this->assertTrue($mock->getReadCacheState(), 'Cache should be enabled by default');
         $mock->disableReadCache(); // Cache is enabled by default
 
@@ -39,10 +43,12 @@ class YouTubeRepositoryTest extends TestCase
 
     public function testCanDisableCache()
     {
+        $logger = $this->getMockBuilder(Psr\Log\LoggerInterface::class)
+        ->getMockForAbstractClass();
         $readAdapter = $this->createStub(GoogleAPIFetch::class);
         $googleService = $this->createStub(GoogleService::class);
         
-        $mock = $this->getMockForAbstractClass(YouTubeRepository::class, [$readAdapter, $googleService]);
+        $mock = $this->getMockForAbstractClass(YouTubeRepository::class, [$logger, $readAdapter, $googleService]);
         $this->assertTrue($mock->getReadCacheState(), 'Cache should be enabled by default');
 
         $mock->disableReadCache();
