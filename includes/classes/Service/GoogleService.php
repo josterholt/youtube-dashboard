@@ -43,6 +43,7 @@ class GoogleService {
     {
         $client = self::getGoogleClient();
 
+
         $accessToken = self::getAccessTokenFromFile($_ENV['ACCESS_TOKEN_FILE_PATH']);
     
         if ($accessToken == null && !empty($_GET['code'])) {
@@ -61,7 +62,7 @@ class GoogleService {
         }
     
         // TODO: Look into handling token when it has expired and client doesn't autorenew
-        if (empty($accessToken) || $client->isAccessTokenExpired()) {
+        if (empty($accessToken)) {
             // This is a code smell. Method should return an expected value and shouldn't die.
             self::redirectToAuthorizationPage($client);
             die();
@@ -72,7 +73,6 @@ class GoogleService {
                 $accessTokenNew = self::getAccessTokenFromFile($_ENV['ACCESS_TOKEN_FILE_PATH']);
                 $accessTokenNew['access_token'] = $accessToken;
                 self::storeAccessTokenToFile($_ENV['ACCESS_TOKEN_FILE_PATH'], $accessTokenNew);
-                echo sprintf("**** New access token received at cache key %s and access token %s\n\n", $cacheKey, $accessToken);                
                 $client->setAccessToken($accessToken);
 
             };
@@ -90,7 +90,8 @@ class GoogleService {
     protected static function redirectToAuthorizationPage(\Google\Client $client): void
     {
         $authUrl = $client->createAuthUrl();
-        header("Location: {$authUrl}");
+        echo "URL: {$authUrl}<br />\n";
+        //header("Location: {$authUrl}");
     }
 
     protected static function getAccessTokenFromCode(\Google\Client $client, string $code): ?array
