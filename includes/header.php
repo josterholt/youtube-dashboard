@@ -1,6 +1,4 @@
 <?php
-use josterholt\Service\RedisService;
-
 /**
  * BEGIN AUTOLOAD SCRIPTS
  */
@@ -16,4 +14,3 @@ $dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../');
 $dotenv->load();
 
 require_once("functions.php");
-RedisService::initialize();

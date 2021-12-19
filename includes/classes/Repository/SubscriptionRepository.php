@@ -27,7 +27,7 @@ class SubscriptionRepository extends YouTubeRepository {
         $results = $this->_readAdapter->get('josterholt.youtube.subscriptions', '.', function ($queryParams) {
             $queryParams['mine'] = true;
 
-
+            die("foo");
             // @todo allow Google service to be assigned outside of this
             return GoogleService::getInstance()->subscriptions->listSubscriptions('contentDetails,snippet', $queryParams);
         });

@@ -4,9 +4,39 @@ use josterholt\Repository\CategoryRepository;
 use josterholt\Repository\PlayListItemRepository;
 use josterholt\Repository\SubscriptionRepository;
 use josterholt\Service\GoogleAPIFetch;
-use josterholt\Service\RedisService;
+use DI\Container;
+use josterholt\Repository\ChannelRepository;
+use Redislabs\Module\ReJSON\ReJSON;
+use josterholt\Service\GoogleService;
 
 require_once("includes/header.php");
+GoogleService::initialize();
+$container = new Container();
+
+// REDIS START
+$redisClient = $container->get(\Redis::class);
+$redisURL = $_ENV['REDIS_URL'];
+$redisPort = $_ENV['REDIS_PORT'];
+$redisPassword = $_ENV['REDIS_PASSWORD'];
+$redisClient->connect($redisURL, $redisPort);
+if ($redisPassword != null) {
+    $redisClient->auth($redisPassword);
+}
+
+register_shutdown_function(function () use ($redisClient) {
+    $redisClient->close();
+});
+
+$redisJSONClient = ReJSON::createWithPhpRedis($redisClient);
+$container->set(ReJSON::class, $redisJSONClient);
+// REDIS END
+
+// FETCH START
+$fetchBuilder = \DI\create(GoogleAPIFetch::class);
+$fetchBuilder->constructor(\DI\get(ReJSON::class));
+$fetchBuilder->method('enableReadCache', \DI\get(GoogleAPIFetch::class));
+$container->set(GoogleAPIFetch::class, $fetchBuilder);
+// FETCH END
 
 $twig = getTwig();
 
@@ -18,14 +48,14 @@ $twig = getTwig();
 $lastActivityLookup = [];
 
 $category_title_lookup = [];
-$categoryRepository = new CategoryRepository();
+$categoryRepository = $container->get(CategoryRepository::class);
 $data = $categoryRepository->getAll();
 foreach($data as $category) {
     $category_title_lookup[$category->id]['categoryTitle'] = $category->title;
 }
 
 $item_category_lookup = [];
-$categoryRepository = new CategoryRepository();
+$categoryRepository = $container->get(CategoryRepository::class);
 
 $data = $categoryRepository->getItems();
 if(!empty($data)) {
@@ -45,15 +75,11 @@ if(!empty($data)) {
 $channels_lookup = [];
 $play_list_items_lookup = [];
 
-$subscriptionRepository = new SubscriptionRepository();
+$subscriptionRepository = $container->get(SubscriptionRepository::class);
 $subscriptions = $subscriptionRepository->getAll();
 foreach ($subscriptions as  $subscription) {
-    $fetch = new GoogleAPIFetch(RedisService::getInstance());
-    $fetch->enableReadCache();
-
-    $channel = new josterholt\Repository\ChannelRepository();
-    $channel->setReadAdapter($fetch);
-
+    $channel = $container->get(ChannelRepository::class);
+    
     // @todo is there a way to pull channels in bulk?    
     $channels = $channel->getBySubscriptionId($subscription->snippet->resourceId->channelId);
 
@@ -64,7 +90,7 @@ foreach ($subscriptions as  $subscription) {
     $channels_lookup[$subscription->snippet->resourceId->channelId] = $channels[0]->items[0];
 
     $upload_playlist_id = $channels[0]->items[0]->contentDetails->relatedPlaylists->uploads;
-    $playListItemRepository = new PlayListItemRepository();
+    $playListItemRepository = $container->get(PlayListItemRepository::class);
     $play_list_items = $playListItemRepository->getByPlaylistId($upload_playlist_id);
 
 

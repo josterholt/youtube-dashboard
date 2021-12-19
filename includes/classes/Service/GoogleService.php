@@ -60,16 +60,13 @@ class GoogleService {
             $accessToken = null;
         }
     
-        if (empty($accessToken)) {
+        // TODO: Look into handling token when it has expired and client doesn't autorenew
+        if (empty($accessToken) || $client->isAccessTokenExpired()) {
             // This is a code smell. Method should return an expected value and shouldn't die.
             self::redirectToAuthorizationPage($client);
             die();
         } else {
             $client->setAccessToken($accessToken);
-
-            if($client->isAccessTokenExpired()) {
-                
-            }
 
             $tokenCallback = function ($cacheKey, $accessToken) use ($client){
                 $accessTokenNew = self::getAccessTokenFromFile($_ENV['ACCESS_TOKEN_FILE_PATH']);

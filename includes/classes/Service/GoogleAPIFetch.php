@@ -1,6 +1,7 @@
 <?php
 namespace josterholt\Service;
 
+use Redislabs\Module\ReJSON\ReJSON;
 
 /**
  * GoogleAPIFetch is a wrapper for Google API that caches results.
@@ -25,7 +26,7 @@ class GoogleAPIFetch
      * @param \Redislabs\Module\ReJSON\ReJSON $redis
      * @return void
      */
-    public function __construct($redis)
+    public function __construct(ReJSON $redis)
     {
         $this->_redis = $redis;
     }
@@ -36,7 +37,7 @@ class GoogleAPIFetch
      * @param Redislabs\Module\ReJSON\ReJSON $redis
      * @return void
      */
-    public function setRedisClient(\Redislabs\Module\ReJSON\ReJSON $redis)
+    protected function setRedisClient(ReJSON $redis)
     {
         $this->_redis = $redis;
     }
