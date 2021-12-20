@@ -10,47 +10,37 @@ namespace josterholt\Service;
  * 2. GoogleService::getService();
  */
 class GoogleService {
-    protected static $_instance = null;
+    protected $_client = null;
+    protected $_youTubeAPIService = null;
 
-    public static function initialize() {
-        self::getInstance();
-    }
-
-    public static function getInstance() {
-        if(self::$_instance == null) {
-            static::$_instance = new \Google\Service\YouTube(self::getClient());
-        }
-
-        return static::$_instance;
-    }
-
-    // TODO: This can probably be merged with getClient
-    protected static function getGoogleClient(): \Google\Client
-    {
-        $client = new \Google_Client();
-        $client->setApplicationName('API code samples');
-        $client->setScopes([
+    public function initialize() {
+        $this->_client = new \Google_Client();
+        $this->_client->setApplicationName('API code samples');
+        $this->_client->setScopes([
             'https://www.googleapis.com/auth/youtube.readonly',
         ]);
 
         // More Info: https://cloud.google.com/iam/docs/creating-managing-service-account-keys
-        $client->setAuthConfig('client_secret.json');
-        $client->setAccessType('offline');
-        return $client;
-    }       
+        $this->_client->setAuthConfig('client_secret.json');
+        $this->_client->setAccessType('offline');
+        $this->_checkClientAccess();
 
-    protected static function getClient()
+        $this->_youTubeAPIService = new \Google\Service\YouTube($this->_client);
+    }
+
+    public function getYouTubeAPIService() {
+        return $this->_youTubeAPIService;
+    }
+
+    protected function _checkClientAccess()
     {
-        $client = self::getGoogleClient();
-
-
-        $accessToken = self::getAccessTokenFromFile($_ENV['ACCESS_TOKEN_FILE_PATH']);
+        $accessToken = $this->_getAccessTokenFromFile($_ENV['ACCESS_TOKEN_FILE_PATH']);
     
         if ($accessToken == null && !empty($_GET['code'])) {
-            $accessToken = self::getAccessTokenFromCode($client, $_GET['code']);
+            $accessToken = $this->_getAccessTokenFromCode($this->_client, $_GET['code']);
     
             if(empty($accessToken['error'])) {
-                self::storeAccessTokenToFile($_ENV['ACCESS_TOKEN_FILE_PATH'], $accessToken);
+                $this->_storeAccessTokenToFile($_ENV['ACCESS_TOKEN_FILE_PATH'], $accessToken);
             }
         }
     
@@ -64,22 +54,19 @@ class GoogleService {
         // TODO: Look into handling token when it has expired and client doesn't autorenew
         if (empty($accessToken)) {
             // This is a code smell. Method should return an expected value and shouldn't die.
-            self::redirectToAuthorizationPage($client);
+            $this->_redirectToAuthorizationPage($this->_client);
             die();
         } else {
-            $client->setAccessToken($accessToken);
+            $this->_client->setAccessToken($accessToken);
 
-            $tokenCallback = function ($cacheKey, $accessToken) use ($client){
-                $accessTokenNew = self::getAccessTokenFromFile($_ENV['ACCESS_TOKEN_FILE_PATH']);
+            $tokenCallback = function ($cacheKey, $accessToken) {
+                $accessTokenNew = $this->_getAccessTokenFromFile($_ENV['ACCESS_TOKEN_FILE_PATH']);
                 $accessTokenNew['access_token'] = $accessToken;
-                self::storeAccessTokenToFile($_ENV['ACCESS_TOKEN_FILE_PATH'], $accessTokenNew);
-                $client->setAccessToken($accessToken);
-
+                $this->_storeAccessTokenToFile($_ENV['ACCESS_TOKEN_FILE_PATH'], $accessTokenNew);
+                $this->_client->setAccessToken($accessToken);
             };
-            $client->setTokenCallback($tokenCallback);
+            $this->_client->setTokenCallback($tokenCallback);
         }
-    
-        return $client;
     }
 
     /**
@@ -87,14 +74,14 @@ class GoogleService {
      * If one does not exist, redirects user to authorization page.
      * @return bool True if redirect header is set
      */
-    protected static function redirectToAuthorizationPage(\Google\Client $client): void
+    protected function _redirectToAuthorizationPage(\Google\Client $client): void
     {
         $authUrl = $client->createAuthUrl();
-        echo "URL: {$authUrl}<br />\n";
-        //header("Location: {$authUrl}");
+        //echo "URL: {$authUrl}<br />\n";
+        header("Location: {$authUrl}");
     }
 
-    protected static function getAccessTokenFromCode(\Google\Client $client, string $code): ?array
+    protected static function _getAccessTokenFromCode(\Google\Client $client, string $code): ?array
     {
         if (empty($code)) {
             return null;
@@ -106,7 +93,7 @@ class GoogleService {
         return $client->fetchAccessTokenWithAuthCode($authCode); // @todo returns array?
     }
 
-    protected static function storeAccessTokenToFile(string $file_path, array|null $access_token): bool
+    protected function _storeAccessTokenToFile(string $file_path, array|null $access_token): bool
     {
         if (file_put_contents($file_path, json_encode($access_token)) === false) {
             return false;
@@ -115,7 +102,7 @@ class GoogleService {
         return true;
     }
 
-    protected static function getAccessTokenFromFile(string $file_path)
+    protected function _getAccessTokenFromFile(string $file_path)
     {
         if (!file_exists($file_path)) {
             return null;

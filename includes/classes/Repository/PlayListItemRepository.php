@@ -1,5 +1,8 @@
 <?php
 namespace josterholt\Repository;
+
+use josterholt\Service\GoogleService;
+
 class PlayListItemRepository extends YouTubeRepository {
     protected $_type = "video";
 
@@ -13,7 +16,7 @@ class PlayListItemRepository extends YouTubeRepository {
                     'playlistId' => $playlist_id
                 ];
 
-                return $this->_service::getInstance()->playlistItems->listPlaylistItems('snippet,contentDetails', $queryParams);
+                return $this->_service->getYouTubeAPIService()->playlistItems->listPlaylistItems('snippet,contentDetails', $queryParams);
             });
         } catch(\Exception $e) {
             $this->_logger->error("Unable to access Playlist youtube.playlistItems.{$playlist_id}\n{$e->getMessage()}");

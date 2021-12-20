@@ -50,8 +50,14 @@ $redisJSONClient = ReJSON::createWithPhpRedis($redisClient);
 $container->set(ReJSON::class, $redisJSONClient);
 // REDIS END
 
+// GOOGLE SERVICE START
+//GoogleService::initialize();
+$googleService = $container->get(GoogleService::class);
+$googleService->initialize();
+// GOOGLE SERVICE END
+
+
 // FETCH START
-GoogleService::initialize();
 $fetchObjectBuilder = \DI\create(GoogleAPIFetch::class);
 $fetchObjectBuilder->constructor(\DI\get(Psr\Log\LoggerInterface::class), \DI\get(ReJSON::class));
 $fetchObjectBuilder->method('enableReadCache', \DI\get(GoogleAPIFetch::class));
