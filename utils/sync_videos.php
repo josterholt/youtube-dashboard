@@ -2,21 +2,16 @@
 use \josterholt\Repository\SubscriptionRepository;
 use \josterholt\Repository\ChannelRepository;
 use \josterholt\Repository\PlayListItemRepository;
-use josterholt\Service\GoogleService;
-use josterholt\Service\RedisService;
-use josterholt\Service\GoogleAPIFetch;
 
 require_once("includes/bootstrap.php");
 
-// @todo there needs to be a more graceful way to handle no service.
-// GoogleService::initialize();
-// if(GoogleService::getInstance() == null) {
-//     die("Unable to connect to Google Service\n");
-// }
+// TODO: Wrap this is in a class/controller
+$logger = $container->get("Psr\Log\LoggerInterface");
 
+$logger->debug("Getting all subscriptions");
 $subscriptionRepository = $container->get(SubscriptionRepository::class);
 $subscriptionRepository->disableReadCache();
-$subscriptions = $subscriptionRepository->getAll();
+$subscriptions = $subscriptionRepository->getAllSubscriptions();
 
 $channelRepository = $container->get(ChannelRepository::class);
 $channelRepository->disableReadCache();
@@ -27,6 +22,7 @@ $playListItemRepository->disableReadCache();
 $channels_lookup = [];
 $videos_lookup = [];
 foreach ($subscriptions as  $subscription) {
+    $logger->debug("Fetching channel by subscription ID: {$subscription->snippet->resourceId->channelId}");
     $channelRepo = $container->get(ChannelRepository::class);
     $channels = $channelRepo->getBySubscriptionId($subscription->snippet->resourceId->channelId);
 
@@ -37,9 +33,10 @@ foreach ($subscriptions as  $subscription) {
     try {
         $upload_playlist_id = $channels[0]->items[0]->contentDetails->relatedPlaylists->uploads;
         $playListItemRepository = $container->get(PlayListItemRepository::class);
+
+        $logger->debug("Upload Playlist ID: {$upload_playlist_id}\n");
         $playListItemRepository->getByPlayListId($upload_playlist_id);
     } catch (\Exception $e) {
-        echo $e->getMessage();
-        echo $e->getTraceAsString();
+        $logger->error("Error: {$e->getMessage()}\n $e->getTraceAsString()");
     }
 }

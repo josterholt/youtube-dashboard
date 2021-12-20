@@ -105,7 +105,7 @@ class GoogleAPIFetch
         }
 
         $responsesJSONEncoded = json_encode($responses);
-        $this->_logger->debug("|Setting cache record.", ["key" => $key, "path" => $path, "length" => strlen($responsesJSONEncoded)]);
+        $this->_logger->debug("Setting cache record.", ["key" => $key, "path" => $path, "length" => strlen($responsesJSONEncoded)]);
         $this->_redis->set($key, $path, $responsesJSONEncoded); // Support array of requests
 
         return $responses;
