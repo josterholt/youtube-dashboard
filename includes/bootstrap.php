@@ -21,7 +21,10 @@ $dotenv->load();
 
 require_once("functions.php");
 
-$container = new Container();
+
+$containerBuilder = new DI\ContainerBuilder();
+$containerBuilder->useAnnotations(true);
+$container = $containerBuilder->build();
 
 $logContainerBuilder = \DI\create(Monolog\Logger::class);
 $logContainerBuilder->constructor("frontend-webapp");
