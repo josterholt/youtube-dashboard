@@ -7,6 +7,9 @@ use PHPUnit\Framework\TestCase;
 
 class YouTubeRepositoryTest extends TestCase
 {
+    /**
+     * @covers YouTubeRepository
+     */    
     public function testCanCreateYouTubeRepositoryObject() {
         $logger = $this->getMockBuilder(Psr\Log\LoggerInterface::class)
         ->getMockForAbstractClass();        
@@ -19,6 +22,9 @@ class YouTubeRepositoryTest extends TestCase
         $this->assertNotEmpty($mock);
     }
 
+    /**
+     * @covers YouTubeRepository
+     */    
     public function testWillThrowExceptionIfArgumentDependenciesMissing() {
         $this->expectException(TypeError::class);
         $stub = $this->getMockBuilder(YouTubeRepository::class)
@@ -26,6 +32,9 @@ class YouTubeRepositoryTest extends TestCase
             ->getMockForAbstractClass();
     }
     
+    /**
+     * @covers YouTubeRepository
+     */    
     public function testCanEnableCache()
     {
         $logger = $this->getMockBuilder(Psr\Log\LoggerInterface::class)
@@ -41,6 +50,9 @@ class YouTubeRepositoryTest extends TestCase
         $this->assertTrue($mock->getReadCacheState());
     }
 
+    /**
+     * @covers YouTubeRepository
+     */
     public function testCanDisableCache()
     {
         $logger = $this->getMockBuilder(Psr\Log\LoggerInterface::class)
@@ -55,26 +67,41 @@ class YouTubeRepositoryTest extends TestCase
         $this->assertFalse($mock->getReadCacheState());
     }
 
+    /**
+    * @covers YouTubeRepository
+    */
     public function testCanGetAllItems()
     {
         $this->markTestIncomplete("Placeholder");
     }
 
+    /**
+     * @covers YouTubeRepository
+     */
     public function testCanGetItemById()
     {
         $this->markTestIncomplete("Placeholder");
     }
 
+    /**
+     * @covers YouTubeRepository
+     */
     public function testCanCreateItemInDataStore()
     {
         $this->markTestIncomplete("Placeholder");
     }
 
+    /**
+     * @covers YouTubeRepository
+     */
     public function testCanUpdateItemInDataStore()
     {
         $this->markTestIncomplete("Placeholder");
     }
 
+    /**
+     * @covers YouTubeRepository
+     */
     public function testCanDeleteItemInDataStore()
     {
         $this->markTestIncomplete("Placeholder");

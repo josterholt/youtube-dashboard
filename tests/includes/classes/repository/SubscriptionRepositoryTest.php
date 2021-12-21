@@ -8,39 +8,8 @@ use Redislabs\Module\ReJSON\ReJSON;
 use josterholt\Service\GoogleService;
 
 class SubscriptionRepositoryTest extends TestCase {
-    // public function testFetchAllSubscriptions() {
-    //     $mockCollection = $this->createMock(Collection::class);
-    //     $mockCollection->items = [
-    //         ["Testing"]
-    //     ];
-        
-        
-    //     $test_subscriptions = [
-    //             $mockCollection,
-    //             $mockCollection,
-    //     ];
-        
-    //     $logger = $this->createStub();
-    //     $googleService = $this->createStub();
-
-    //     $googleAPIFetch = $this->getMockBuilder(GoogleAPIFetch::class)
-    //         ->setConstructorArgs([$logger, $redis])
-    //         ->getMock();
-
-    //     $googleAPIFetch->method('get')
-    //         ->willReturn($test_subscriptions);        
-
-    //     // Initial object with mocked GoogleAPIFetch and RedisJSON
-    //     $subscriptionRepository->__construct($logger, $googleAPIFetch, $googleService);
-        
-    //     $this->assertCount(count($test_subscriptions), $subscriptionRepository->getAllSubscriptions());
-
-
-    // }
-
     /**
-     * Tests getSubscriptionsFromAPI for proper retrieval of data from reader adapter.
-     * Results returned by mock will be the same as those returned by this method.
+     * @covers SubscriptionRepository
      */
     public function testGetSubscriptionsFromAPIReturnsCorrectResults() {
         /**
@@ -74,6 +43,8 @@ class SubscriptionRepositoryTest extends TestCase {
     /**
      * Tests getSubscriptionsFromAPI for proper retrieval of data from reader adapter.
      * Results returned by mock will be the same as those returned by this method.
+     * 
+     * @covers SubscriptionRepository
      */
     public function testGetAllSubscriptionsFromAPI() {
         /**

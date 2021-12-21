@@ -6,6 +6,9 @@ use josterholt\Repository\ChannelRepository;
 use josterholt\Service\GoogleService;
 
 class ChannelRepositoryTest extends TestCase {
+    /**
+     * @covers ChannelRepository
+     */    
     public function testCanGetSubscriptionById() {
         $logger = $this->getMockBuilder(Psr\Log\LoggerInterface::class)
         ->getMockForAbstractClass();

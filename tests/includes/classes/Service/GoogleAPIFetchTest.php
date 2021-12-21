@@ -4,6 +4,9 @@ use PHPUnit\Framework\TestCase;
 use josterholt\Service\GoogleAPIFetch;
 
 class GoogleAPIFetchTest extends TestCase {
+    /**
+     * @covers GoogleAPIFetch
+     */    
     public function testCanCallGet() {
         $logger = $this->getMockBuilder(Psr\Log\LoggerInterface::class)
         ->getMockForAbstractClass();
