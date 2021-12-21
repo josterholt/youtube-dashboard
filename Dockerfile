@@ -1,4 +1,6 @@
-FROM php:8.0-cli
+FROM php:8.1-cli
+RUN cp /usr/local/etc/php/php.ini-development /usr/local/etc/php/php.ini
+RUN pear config-set php_ini /usr/local/etc/php/php.ini
 
 RUN apt update
 RUN apt install zip -y
@@ -10,5 +12,5 @@ RUN php -r "unlink('composer-setup.php');"
 RUN mv composer.phar /usr/local/bin/composer
 
 RUN pecl install redis
-#RUN pecl install xdebug
+RUN pecl install xdebug
 RUN docker-php-ext-enable redis

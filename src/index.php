@@ -1,4 +1,4 @@
-<?
+<?php
 
 use josterholt\Repository\CategoryRepository;
 use josterholt\Repository\PlayListItemRepository;

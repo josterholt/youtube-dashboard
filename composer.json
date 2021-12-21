@@ -12,7 +12,7 @@
     },
     "autoload": {
         "classmap": [
-            "includes/classes/"
+            "src/includes/classes/"
         ]
     }
 }
