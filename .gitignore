@@ -22,7 +22,7 @@ Homestead.json
 /.vagrant
 .phpunit.result.cache
 .phpunit.cache
-/coverage
+build/coverage
 
 # VSCode Extension Files
 .dccache
