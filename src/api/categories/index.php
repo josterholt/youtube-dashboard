@@ -1,12 +1,12 @@
-<?
-
+<?php
+use josterholt\Service\RedisService;
 /**
  * BEGIN AUTOLOAD SCRIPTS
  */
-if (!file_exists(__DIR__ . '/../../vendor/autoload.php')) {
+if (!file_exists(__DIR__ . '/../../../vendor/autoload.php')) {
     throw new Exception(sprintf('Please run "composer require google/apiclient:~2.0" in "%s"', __DIR__));
 }
-require_once __DIR__ . '/../../vendor/autoload.php';
+require_once __DIR__ . '/../../../vendor/autoload.php';
 /**
  * END AUTOLOAD SCRIPTS
  */
@@ -14,7 +14,8 @@ require_once __DIR__ . '/../../vendor/autoload.php';
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../../');
 $dotenv->load();
 
-require_once("../../includes/functions.php");
+
+require_once(__DIR__."/../../includes/functions.php");
 
 $response = [
     "status" => "SUCCESS",
