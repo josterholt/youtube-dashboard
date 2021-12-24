@@ -7,6 +7,7 @@ class ChannelRepository extends YouTubeRepository {
     protected $_type = "channel";
     protected $_readAdapter = null;
 
+    // TODO: This needs to be removed
     public function setReadAdapter($readAdapter) {
         $this->_readAdapter = $readAdapter;
     }
