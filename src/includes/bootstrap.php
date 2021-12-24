@@ -1,8 +1,7 @@
 <?php
 use josterholt\Service\GoogleAPIFetch;
-use DI\Container;
-use Redislabs\Module\ReJSON\ReJSON;
 use josterholt\Service\GoogleService;
+use Redislabs\Module\ReJSON\ReJSON;
 use Monolog\Handler\StreamHandler;
 use MonoLog\Logger;
 /**
@@ -19,8 +18,6 @@ require_once __DIR__ . '/../../vendor/autoload.php';
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../');
 $dotenv->load();
 
-require_once("functions.php");
-
 
 $containerBuilder = new DI\ContainerBuilder();
 $containerBuilder->useAnnotations(true);
@@ -29,6 +26,7 @@ $container = $containerBuilder->build();
 $logContainerBuilder = \DI\create(Monolog\Logger::class);
 $logContainerBuilder->constructor("frontend-webapp");
 $logContainerBuilder->method('pushHandler', new StreamHandler('php://stdout', Logger::DEBUG));
+
 $container->set(Monolog\Logger::class, $logContainerBuilder);
 $container->set("Psr\Log\LoggerInterface", $logContainerBuilder);
 
