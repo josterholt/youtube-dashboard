@@ -2,13 +2,15 @@
 namespace josterholt\Repository;
 
 
-class SubscriptionRepository extends YouTubeRepository {
+class SubscriptionRepository extends YouTubeRepository
+{
     protected $_type = 'subscription';
     protected $_readAdapter = null;
 
     /**
      *  Fetch channel subscriptions of authenticated user.
-     *  @return array
+     *
+     * @return array
      */ 
     public function getAllSubscriptions(): array
     {
@@ -28,13 +30,15 @@ class SubscriptionRepository extends YouTubeRepository {
      */
     public function getSubscriptionsFromAPI(): array
     {
-        return $this->_readAdapter->get('youtube.subscriptions', '.', function ($queryParams) {
-            $queryParams["mine"] = true;
+        return $this->_readAdapter->get(
+            'youtube.subscriptions', '.', function ($queryParams) {
+                $queryParams["mine"] = true;
             
-            $subscriptions = $this->_service->subscriptions->listSubscriptions('contentDetails,snippet', $queryParams);
-            $this->_logger->debug("Fetched " . count($subscriptions) . " subscriptions.");
-            return $subscriptions;
-        });
+                $subscriptions = $this->_service->subscriptions->listSubscriptions('contentDetails,snippet', $queryParams);
+                $this->_logger->debug("Fetched " . count($subscriptions) . " subscriptions.");
+                return $subscriptions;
+            }
+        );
     }
 
 
@@ -61,7 +65,8 @@ class SubscriptionRepository extends YouTubeRepository {
      *    }
      * ]
      */
-    protected function processResults(Array $results) {       
+    protected function processResults(Array $results)
+    {       
         $subscriptions = [];
         if ($results) {
             foreach ($results as $result) {

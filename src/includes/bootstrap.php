@@ -1,13 +1,14 @@
 <?php
 use josterholt\Service\GoogleAPIFetch;
 use josterholt\Service\GoogleService;
+use josterholt\Repository\PlaylistItemRepository;
+use josterholt\Repository\ChannelRepository;
+use josterholt\Repository\SubscriptionRepository;
 use Redislabs\Module\ReJSON\ReJSON;
 use Psr\Log\LoggerInterface;
 use Monolog\Handler\StreamHandler;
 use MonoLog\Logger;
-use josterholt\Repository\PlaylistItemRepository;
-use josterholt\Repository\ChannelRepository;
-use josterholt\Repository\SubscriptionRepository;
+use Google\Client;
 
 /**
  * BEGIN AUTOLOAD SCRIPTS
@@ -45,17 +46,27 @@ if ($redisPassword != null) {
     $redisClient->auth($redisPassword);
 }
 
-register_shutdown_function(function () use ($redisClient) {
-    $redisClient->close();
-});
+register_shutdown_function(
+    function () use ($redisClient) {
+        $redisClient->close();
+    }
+);
 
 $redisJSONClient = ReJSON::createWithPhpRedis($redisClient);
 $container->set(ReJSON::class, $redisJSONClient);
 // REDIS END
 
 // GOOGLE SERVICE START
+$googleServiceBuilder = \DI\Create(GoogleService::class);
+$googleServiceBuilder->constructor(
+    new Client(), $_ENV['CLIENT_SECRET_FILE_PATH'], $_ENV['ACCESS_TOKEN_FILE_PATH'],
+    \DI\get(LoggerInterface::class)
+);
+$googleServiceBuilder = $container->set(GoogleService::class, $googleServiceBuilder);
+
+$googleClientCode = empty($_GET['code'])? null : $_GET['code'];
 $googleService = $container->get(GoogleService::class);
-$googleService->initialize();
+$googleService->initialize($googleClientCode);
 // GOOGLE SERVICE END
 
 

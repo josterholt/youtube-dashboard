@@ -10,51 +10,61 @@ use Psr\Log\LoggerInterface;
  * This repository type will retrieve YouTube videos, 
  * starting with CACHE and then querying source (YouTube).
  */
-abstract class YouTubeRepository implements IGenericRepository  {
+abstract class YouTubeRepository implements IGenericRepository
+{
     protected $_type = null;
     protected $_service = null;
     protected $_useCache = true;
     protected $_readAdapter = null;
     protected $_logger = null;
 
-    public function __construct(LoggerInterface $logger, GoogleAPIFetch $fetch, GoogleService $googleService) {
+    public function __construct(LoggerInterface $logger, GoogleAPIFetch $fetch, GoogleService $googleService)
+    {
         $this->_logger = $logger;
         $this->_readAdapter = $fetch;
         $this->_service = $googleService->getYouTubeAPIService();
         
     }    
 
-    public function enableReadCache() {
+    public function enableReadCache()
+    {
         $this->_readAdapter->enableReadCache();
         $this->_useCache = true;
     }
 
-    public function disableReadCache() {
+    public function disableReadCache()
+    {
         $this->_readAdapter->disableReadCache();
         $this->_useCache = false;
     }
 
-    public function getReadCacheState() {
+    public function getReadCacheState()
+    {
         return $this->_useCache;
     }
 
-    public function getAll(): array {
+    public function getAll(): array
+    {
         return [];
     }
 
-    public function getById($id): object|null {
+    public function getById($id): object|null
+    {
         return null;
     }
     
-    public function create(object $record): bool {
+    public function create(object $record): bool
+    {
         return false;
     }
 
-    public function update(object $record): bool {
+    public function update(object $record): bool
+    {
         return false;
     }
 
-    public function delete($id): bool {
+    public function delete($id): bool
+    {
         return false;
     }
 }

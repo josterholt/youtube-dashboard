@@ -6,34 +6,36 @@ use josterholt\Repository\PlayListItemRepository;
 use josterholt\Repository\SubscriptionRepository;
 use josterholt\Repository\ChannelRepository;
 
-class YouTubeDashboardController {
+class YouTubeDashboardController
+{
     /**
      * @Inject
-     * @var CategoryRepository
+     * @var    CategoryRepository
      */
     private $_categoryRepository;
 
     /**
      * @Inject
-     * @var SubscriptionRepository
+     * @var    SubscriptionRepository
      */
     private $_subscriptionRepository;
 
     /**
      * @Inject
-     * @var ChannelRepository
+     * @var    ChannelRepository
      */
     private $_channelRepository;
 
     /**
      * @Inject
-     * @var PlaylistItemRepository
+     * @var    PlaylistItemRepository
      */
     private $_playListItemRepository;
 
     private $_subscriptions = null;
 
-    protected function _itemCategoryLookup() {
+    protected function _itemCategoryLookup()
+    {
         $data = $this->_categoryRepository->getAll();
 
         $category_title_lookup = [];
@@ -59,7 +61,8 @@ class YouTubeDashboardController {
         return $item_category_lookup;
     }
 
-    protected function _getLastActivityLookup() {
+    protected function _getLastActivityLookup()
+    {
         $lastActivityLookup = []; // Store last video upload activity for display
         foreach ($this->_subscriptions as  $subscription) {           
             // @todo is there a way to pull channels in bulk?    
@@ -82,7 +85,8 @@ class YouTubeDashboardController {
         return $lastActivityLookup;
     }
 
-    protected function _getChannelsLookup() {
+    protected function _getChannelsLookup()
+    {
         $channels_lookup = [];
         foreach ($this->_subscriptions as  $subscription) {           
             // @todo is there a way to pull channels in bulk?    
@@ -97,7 +101,8 @@ class YouTubeDashboardController {
         return $channels_lookup;
     }
 
-    protected function _getPlayListItemsLookup() {
+    protected function _getPlayListItemsLookup()
+    {
         $play_list_items_lookup = [];
         foreach ($this->_subscriptions as  $subscription) {           
             // @todo is there a way to pull channels in bulk?    
@@ -125,7 +130,8 @@ class YouTubeDashboardController {
         return $play_list_items_lookup;
     }
 
-    protected function _getGroupedChannelsByCategory() {
+    protected function _getGroupedChannelsByCategory()
+    {
         $item_category_lookup = $this->_itemCategoryLookup();
         $play_list_items_lookup = $this->_getPlayListItemsLookup();
         $channels_lookup = $this->_getChannelsLookup();
@@ -163,22 +169,25 @@ class YouTubeDashboardController {
             }
         }
 
-        usort($grouped_channel_sets, function ($set_a, $set_b) {   
-            if($set_a['category']['categoryID'] == 0) {
-                return 1;
-            }
+        usort(
+            $grouped_channel_sets, function ($set_a, $set_b) {   
+                if($set_a['category']['categoryID'] == 0) {
+                    return 1;
+                }
 
-            if($set_b['category']['categoryID'] == 0) {
-                return -1;
-            }
+                if($set_b['category']['categoryID'] == 0) {
+                    return -1;
+                }
 
-            return strnatcmp($set_a['category']['categoryTitle'], $set_b['category']['categoryTitle']);
-        });
+                return strnatcmp($set_a['category']['categoryTitle'], $set_b['category']['categoryTitle']);
+            }
+        );
 
         return $grouped_channel_sets;
     }
 
-    public function videoListing() {
+    public function videoListing()
+    {
         $this->_subscriptions = $this->_subscriptionRepository->getAllSubscriptions();
 
         $context = [

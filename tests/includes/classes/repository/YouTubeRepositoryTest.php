@@ -10,22 +10,24 @@ class YouTubeRepositoryTest extends TestCase
     /**
      * @covers YouTubeRepository
      */    
-    public function testCanCreateYouTubeRepositoryObject() {
+    public function testCanCreateYouTubeRepositoryObject()
+    {
         $logger = $this->getMockBuilder(Psr\Log\LoggerInterface::class)
-        ->getMockForAbstractClass();        
+            ->getMockForAbstractClass();        
         $readAdapter = $this->createStub(GoogleAPIFetch::class);
         $googleService = $this->createStub(GoogleService::class);
 
         $mock = $this->getMockBuilder(YouTubeRepository::class)
-        ->setConstructorArgs([$logger, $readAdapter, $googleService])
-        ->getMockForAbstractClass();
+            ->setConstructorArgs([$logger, $readAdapter, $googleService])
+            ->getMockForAbstractClass();
         $this->assertNotEmpty($mock);
     }
 
     /**
      * @covers YouTubeRepository
      */    
-    public function testWillThrowExceptionIfArgumentDependenciesMissing() {
+    public function testWillThrowExceptionIfArgumentDependenciesMissing()
+    {
         $this->expectException(TypeError::class);
         $stub = $this->getMockBuilder(YouTubeRepository::class)
             ->setConstructorArgs([null, null])
@@ -38,7 +40,7 @@ class YouTubeRepositoryTest extends TestCase
     public function testCanEnableCache()
     {
         $logger = $this->getMockBuilder(Psr\Log\LoggerInterface::class)
-        ->getMockForAbstractClass();        
+            ->getMockForAbstractClass();        
         $readAdapter = $this->createStub(GoogleAPIFetch::class);
         $googleService = $this->createStub(GoogleService::class);
         
@@ -56,7 +58,7 @@ class YouTubeRepositoryTest extends TestCase
     public function testCanDisableCache()
     {
         $logger = $this->getMockBuilder(Psr\Log\LoggerInterface::class)
-        ->getMockForAbstractClass();
+            ->getMockForAbstractClass();
         $readAdapter = $this->createStub(GoogleAPIFetch::class);
         $googleService = $this->createStub(GoogleService::class);
         
@@ -68,8 +70,8 @@ class YouTubeRepositoryTest extends TestCase
     }
 
     /**
-    * @covers YouTubeRepository
-    */
+     * @covers YouTubeRepository
+     */
     public function testCanGetAllItems()
     {
         $this->markTestIncomplete("Placeholder");

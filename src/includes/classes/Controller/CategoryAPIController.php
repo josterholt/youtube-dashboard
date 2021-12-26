@@ -4,8 +4,10 @@ namespace josterholt\Controller;
 use josterholt\Service\RedisService;
 
 
-class CategoryAPIController {
-    public function addItemToCategory() {
+class CategoryAPIController
+{
+    public function addItemToCategory()
+    {
         $response = [
             "status" => "SUCCESS",
             "response" => "",

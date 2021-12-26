@@ -7,11 +7,13 @@ use josterholt\Service\GoogleAPIFetch;
 use Redislabs\Module\ReJSON\ReJSON;
 use josterholt\Service\GoogleService;
 
-class SubscriptionRepositoryTest extends TestCase {
+class SubscriptionRepositoryTest extends TestCase
+{
     /**
      * @covers SubscriptionRepository
      */
-    public function testGetSubscriptionsFromAPIReturnsCorrectResults() {
+    public function testGetSubscriptionsFromAPIReturnsCorrectResults()
+    {
         /**
          * SETUP BEGINS
          */
@@ -19,7 +21,7 @@ class SubscriptionRepositoryTest extends TestCase {
         
 
         $logger = $this->getMockBuilder(Psr\Log\LoggerInterface::class)
-        ->getMockForAbstractClass();
+            ->getMockForAbstractClass();
         
         $redis = $this->createStub(ReJSON::class);
         $googleService = $this->createStub(GoogleService::class);
@@ -46,7 +48,8 @@ class SubscriptionRepositoryTest extends TestCase {
      * 
      * @covers SubscriptionRepository
      */
-    public function testGetAllSubscriptionsFromAPI() {
+    public function testGetAllSubscriptionsFromAPI()
+    {
         /**
          * SETUP BEGINS
          */
@@ -82,7 +85,7 @@ class SubscriptionRepositoryTest extends TestCase {
 
 
         $logger = $this->getMockBuilder(Psr\Log\LoggerInterface::class)
-        ->getMockForAbstractClass();
+            ->getMockForAbstractClass();
         
         $redis = $this->createStub(ReJSON::class);
         $googleService = $this->createStub(GoogleService::class);

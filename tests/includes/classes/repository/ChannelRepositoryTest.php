@@ -6,13 +6,15 @@ use josterholt\Repository\ChannelRepository;
 use josterholt\Service\GoogleService;
 
 
-class ChannelRepositoryTest extends TestCase {
+class ChannelRepositoryTest extends TestCase
+{
     /**
      * @covers ChannelRepository
      */    
-    public function testCanGetSubscriptionById() {
+    public function testCanGetSubscriptionById()
+    {
         $logger = $this->getMockBuilder(Psr\Log\LoggerInterface::class)
-        ->getMockForAbstractClass();
+            ->getMockForAbstractClass();
 
         $readAdapter = $this->createStub(GoogleAPIFetch::class);
         // @php-ignore

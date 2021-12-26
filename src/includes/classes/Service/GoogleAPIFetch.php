@@ -24,7 +24,7 @@ class GoogleAPIFetch
     /**
      * Accepts a Redis client to use for caching as an argument.
      * 
-     * @param \Redislabs\Module\ReJSON\ReJSON $redis
+     * @param  \Redislabs\Module\ReJSON\ReJSON $redis
      * @return void
      */
     public function __construct(LoggerInterface $logger, ReJSON $redis)
@@ -36,7 +36,7 @@ class GoogleAPIFetch
     /**
      * Sets Redis client to use for caching.
      * 
-     * @param Redislabs\Module\ReJSON\ReJSON $redis
+     * @param  Redislabs\Module\ReJSON\ReJSON $redis
      * @return void
      */
     protected function setRedisClient(ReJSON $redis)
@@ -47,7 +47,8 @@ class GoogleAPIFetch
     /**
      * Fetch will use cache before calling external resource.
      */
-    public function enableReadCache() {
+    public function enableReadCache()
+    {
         $this->_useReadCache = true;
     }
 
@@ -55,7 +56,8 @@ class GoogleAPIFetch
      * Fetch will retrieve fresh data from external resource,
      * even if cache exists. Results of get() will be cached.
      */
-    public function disableReadCache() {
+    public function disableReadCache()
+    {
         $this->_useReadCache = false;
     }
 
@@ -64,10 +66,10 @@ class GoogleAPIFetch
      * if it exists and cache is enabled, otherwise a new call
      * is made against Google API.
      * 
-     * @param string $key
-     * @param string $path
-     * @param function $query
-     * @param $forceRefresh
+     * @param  string   $key
+     * @param  string   $path
+     * @param  function $query
+     * @param  $forceRefresh
      * @return array of responses
      */
     public function get($key, $path, $query)

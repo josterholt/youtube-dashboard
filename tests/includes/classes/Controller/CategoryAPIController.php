@@ -1,11 +1,13 @@
 <?php
 use PHPUnit\Framework\TestCase;
 
-class CategoryAPIController extends TestCase {
+class CategoryAPIController extends TestCase
+{
     /**
      * @covers CategoryAPIController
      */
-    public function testAddItemCategory() {
+    public function testAddItemCategory()
+    {
         $this->markTestIncomplete();
     }
 }

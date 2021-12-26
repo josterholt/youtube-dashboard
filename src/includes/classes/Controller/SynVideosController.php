@@ -1,11 +1,11 @@
 <?php
 /**
  * @description Updates REDIS database with videos from YouTube API.
- * @package josterholt\Controller
- * @author Justin Osterholt
- * @category Utility Class
- * @link N/A
- * @license MIT
+ * @package     josterholt\Controller
+ * @author      Justin Osterholt
+ * @category    Utility Class
+ * @link        N/A
+ * @license     MIT
  */
 namespace josterholt\Controller;
 
@@ -15,33 +15,36 @@ use \josterholt\Repository\PlayListItemRepository;
 use Psr\Log\LoggerInterface;
 
 
-class SyncVideosController {
+class SyncVideosController
+{
     /**
      * @Inject
-     * @var SubscriptionRepository
+     * @var    SubscriptionRepository
      */
     private $_subscriptionRepository;
 
     /**
      * @Inject
-     * @var ChannelRepository
+     * @var    ChannelRepository
      */
     private $_channelRepository;
 
     /**
      * @Inject
-     * @var PlaylistItemRepository
+     * @var    PlaylistItemRepository
      */
     private $_playListItemRepository;
 
     protected $_logger;
 
 
-    public function __construct(LoggerInterface $logger) {
+    public function __construct(LoggerInterface $logger)
+    {
         $this->_logger = $logger;
     }
 
-    public function sync() {
+    public function sync()
+    {
         $this->_logger->debug("Starting video sync.");
         $this->_subscriptionRepository->disableReadCache();
         $this->_channelRepository->disableReadCache();
