@@ -12,7 +12,7 @@ class SubscriptionRepository extends YouTubeRepository {
      */ 
     public function getAllSubscriptions(): array
     {
-        return $this->_processResults($this->getSubscriptionsFromAPI());
+        return $this->processResults($this->getSubscriptionsFromAPI());
     }
 
     /**
@@ -28,8 +28,12 @@ class SubscriptionRepository extends YouTubeRepository {
      */
     public function getSubscriptionsFromAPI(): array
     {
-        return $this->_readAdapter->get('youtube.subscriptions', '.', function () {
-                return $this->_service->getYouTubeAPIService()->subscriptions->listSubscriptions('contentDetails,snippet', ["mine" => true]);
+        return $this->_readAdapter->get('youtube.subscriptions', '.', function ($queryParams) {
+            $queryParams["mine"] = true;
+            
+            $subscriptions = $this->_service->subscriptions->listSubscriptions('contentDetails,snippet', $queryParams);
+            $this->_logger->debug("Fetched " . count($subscriptions) . " subscriptions.");
+            return $subscriptions;
         });
     }
 
@@ -56,13 +60,12 @@ class SubscriptionRepository extends YouTubeRepository {
      *        ]
      *    }
      * ]
-     * 
      */
-    protected function _processResults(Array $results) {       
+    protected function processResults(Array $results) {       
         $subscriptions = [];
-        if($results) {
+        if ($results) {
             foreach ($results as $result) {
-                if($result->items) {
+                if ($result->items) {
                     foreach ($result->items as $item) {
                         $subscriptions[] = $item;
                     }

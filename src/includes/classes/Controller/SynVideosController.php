@@ -42,7 +42,7 @@ class SyncVideosController {
     }
 
     public function sync() {
-        $this->_logger->debug("Getting all subscriptions");
+        $this->_logger->debug("Starting video sync.");
         $this->_subscriptionRepository->disableReadCache();
         $this->_channelRepository->disableReadCache();
         $this->_playListItemRepository->disableReadCache();

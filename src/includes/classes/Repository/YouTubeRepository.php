@@ -20,19 +20,17 @@ abstract class YouTubeRepository implements IGenericRepository  {
     public function __construct(LoggerInterface $logger, GoogleAPIFetch $fetch, GoogleService $googleService) {
         $this->_logger = $logger;
         $this->_readAdapter = $fetch;
-        $this->_service = $googleService;
+        $this->_service = $googleService->getYouTubeAPIService();
         
     }    
 
-    public function setGoogleService(\Google\Service $service) {
-        $this->_service = $service;
-    }
-
     public function enableReadCache() {
+        $this->_readAdapter->enableReadCache();
         $this->_useCache = true;
     }
 
     public function disableReadCache() {
+        $this->_readAdapter->disableReadCache();
         $this->_useCache = false;
     }
 

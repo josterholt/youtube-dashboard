@@ -75,7 +75,7 @@ class GoogleAPIFetch
         if ($this->_useReadCache) {
             $cache = $this->_redis->get($key, $path);
             if (!empty($cache)) {
-                echo "<!-- Using cache for {$key} -->\n";
+                $this->_logger->debug("<!-- Using cache for {$key} -->\n");
                 return json_decode($cache);
             }
         }
@@ -91,12 +91,14 @@ class GoogleAPIFetch
                 $this->_logger->debug("Empty response.", $queryParams);
                 continue;
             } else {
+                $this->_logger->debug("Adding response to array.");
                 $responses[] = $response->toSimpleObject(); // \Google\Collection
             }
 
 
             // Setup next page
             if (empty($response->getNextPageToken()) || (isset($queryParams['pageToken']) && $response->getNextPageToken() == $queryParams['pageToken'])) {
+                $this->_logger->debug("Ending loop.");
                 $loop = false;
             } else {
                 $queryParams['pageToken'] = $response->getNextPageToken();

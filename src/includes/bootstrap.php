@@ -2,8 +2,13 @@
 use josterholt\Service\GoogleAPIFetch;
 use josterholt\Service\GoogleService;
 use Redislabs\Module\ReJSON\ReJSON;
+use Psr\Log\LoggerInterface;
 use Monolog\Handler\StreamHandler;
 use MonoLog\Logger;
+use josterholt\Repository\PlaylistItemRepository;
+use josterholt\Repository\ChannelRepository;
+use josterholt\Repository\SubscriptionRepository;
+
 /**
  * BEGIN AUTOLOAD SCRIPTS
  */
@@ -56,7 +61,22 @@ $googleService->initialize();
 
 // FETCH START
 $fetchObjectBuilder = \DI\create(GoogleAPIFetch::class);
-$fetchObjectBuilder->constructor(\DI\get(Psr\Log\LoggerInterface::class), \DI\get(ReJSON::class));
+$fetchObjectBuilder->constructor(\DI\get(LoggerInterface::class), \DI\get(ReJSON::class));
 $fetchObjectBuilder->method('enableReadCache', \DI\get(GoogleAPIFetch::class));
 $container->set(GoogleAPIFetch::class, $fetchObjectBuilder);
 // FETCH END
+
+// REPO INIT START
+$playlistItemRepositoryBuilder = \DI\create(PlaylistItemRepository::class);
+$playlistItemRepositoryBuilder->constructor(\DI\get(LoggerInterface::class), \DI\get(GoogleAPIFetch::class), \DI\get(GoogleService::class));
+$container->set(PlaylistItemRepository::class, $playlistItemRepositoryBuilder);
+
+
+$channelRepositoryBuilder = \DI\create(ChannelRepository::class);
+$channelRepositoryBuilder->constructor(\DI\get(LoggerInterface::class), \DI\get(GoogleAPIFetch::class), \DI\get(GoogleService::class));
+$container->set(ChannelRepository::class, $channelRepositoryBuilder);
+
+$subscriptionRepositoryBuilder = \DI\create(SubscriptionRepository::class);
+$subscriptionRepositoryBuilder->constructor(\DI\get(LoggerInterface::class), \DI\get(GoogleAPIFetch::class), \DI\get(GoogleService::class));
+$container->set(SubscriptionRepository::class, $subscriptionRepositoryBuilder);
+// REPO INIT END
