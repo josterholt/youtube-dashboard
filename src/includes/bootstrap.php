@@ -49,7 +49,6 @@ $container->set(ReJSON::class, $redisJSONClient);
 // REDIS END
 
 // GOOGLE SERVICE START
-//GoogleService::initialize();
 $googleService = $container->get(GoogleService::class);
 $googleService->initialize();
 // GOOGLE SERVICE END

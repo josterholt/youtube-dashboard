@@ -8,7 +8,7 @@ use josterholt\Controller\YouTubeDashboardController;
  * TODO: See if initialization can be moved into this file 
  * with a one liner for each initialization.
  */
-require_once("includes/bootstrap.php");
+require_once "includes/bootstrap.php";
 
 $controller = $container->make(YouTubeDashboardController::class);
 $controller->videoListing();

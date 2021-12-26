@@ -10,11 +10,18 @@ namespace josterholt\Service;
  * 2. GoogleService::getService();
  */
 class GoogleService {
+    /**
+     * @var \Google\Client
+     */
     protected $_client = null;
+
+    /**
+     * @var \Google\Service\YouTube
+     */
     protected $_youTubeAPIService = null;
 
     public function initialize() {
-        $this->_client = new \Google_Client();
+        $this->_client = new \Google\Client();
         $this->_client->setApplicationName('API code samples');
         $this->_client->setScopes([
             'https://www.googleapis.com/auth/youtube.readonly',
@@ -23,7 +30,9 @@ class GoogleService {
         // More Info: https://cloud.google.com/iam/docs/creating-managing-service-account-keys
         $this->_client->setAuthConfig('client_secret.json');
         $this->_client->setAccessType('offline');
+
         $this->_checkClientAccess();
+
 
         $this->_youTubeAPIService = new \Google\Service\YouTube($this->_client);
     }

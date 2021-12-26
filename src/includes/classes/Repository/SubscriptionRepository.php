@@ -6,10 +6,12 @@ class SubscriptionRepository extends YouTubeRepository {
     protected $_type = 'subscription';
     protected $_readAdapter = null;
 
-    /*
+    /**
      *  Fetch channel subscriptions of authenticated user.
+     *  @return array
      */ 
-    public function getAllSubscriptions(): array {
+    public function getAllSubscriptions(): array
+    {
         return $this->_processResults($this->getSubscriptionsFromAPI());
     }
 
@@ -23,15 +25,11 @@ class SubscriptionRepository extends YouTubeRepository {
      * [
      *     {SubscriptionListResponse(s)},
      * ]
-     * 
      */
-    public function getSubscriptionsFromAPI(): array {
-
-        return $this->_readAdapter->get('josterholt.youtube.subscriptions', '.', function ($queryParams) {
-            $queryParams['mine'] = true;
-            
-            // @todo allow Google service to be assigned outside of this
-            return $this->_service->subscriptions->listSubscriptions('contentDetails,snippet', $queryParams);
+    public function getSubscriptionsFromAPI(): array
+    {
+        return $this->_readAdapter->get('youtube.subscriptions', '.', function () {
+                return $this->_service->getYouTubeAPIService()->subscriptions->listSubscriptions('contentDetails,snippet', ["mine" => true]);
         });
     }
 
