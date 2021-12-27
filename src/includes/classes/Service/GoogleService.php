@@ -9,7 +9,7 @@ use \Google\Client;
 use Psr\Log\LoggerInterface;
 
 /**
- * Singleton utility class for holding Google API client
+ * Utility class for holding Google API client
  * and methods to fetch service for API calls.
  * 
  * Use:
@@ -54,6 +54,11 @@ class GoogleService
     protected $logger = null;
 
     /**
+     * Indicates whether or not user has been authenticated.
+     */
+    public $isAuthenticated = false;
+
+    /**
      * Constructor for GoogleService class.
      * 
      * @param Client          $client             Instance of Google Client
@@ -67,6 +72,8 @@ class GoogleService
         string $accessTokenPath, LoggerInterface $logger
     ) {
         $this->_client = $client;
+        $this->youTubeAPIService = new YouTube($this->_client);
+        
         $this->_clientSecretPath = $clientSecretPath;
         $this->_accessTokenPath = $accessTokenPath;
         $this->logger = $logger;
@@ -80,8 +87,11 @@ class GoogleService
     public function initialize($code = null)
     {
         $this->_initGoogleClient();
-        $this->checkClientAccess($code);
-        $this->youTubeAPIService = new YouTube($this->_client);
+        if (!$this->checkClientAccess($code)) {
+            $this->isAuthenticated = false;
+        } else {
+            $this->isAuthenticated = true;
+        }
     }
 
     /**
@@ -118,17 +128,19 @@ class GoogleService
      * Loads access code from URL or file. Prompts for new access code if not found or expired.
      * TODO: This needs to be broken apart into smaller pieces. Redirect needs to be separated.
      * 
-     * @return void
+     * Returns true on successful token retreival and false on failure.
+     * 
+     * @return bool
      */
     protected function checkClientAccess($code = null): bool
     {
         $accessToken = $this->getAccessTokenFromFile($this->_accessTokenPath);
     
         if ($accessToken == null && !empty($code)) {
-            $accessToken = $this->_getAccessTokenFromCode($this->_client, $code);
+            $accessToken = $this->_getAccessTokenFromCode($code);
     
             if (empty($accessToken['error'])) {
-                $this->_storeAccessTokenToFile($this->_accessTokenPath, $accessToken);
+                $this->storeAccessTokenToFile($this->_accessTokenPath, $accessToken);
             }
         }
     
@@ -136,18 +148,15 @@ class GoogleService
             $accessToken = null;
         }
     
-        // TODO: Look into handling token when it has expired and client doesn't autorenew
         if (empty($accessToken)) {
             return false;
-            // TODO: This is a code smell. Method should return an expected value and shouldn't die.
-            //$this->_redirectToAuthorizationPage();
         } else {
             $this->_client->setAccessToken($accessToken);
 
             $tokenCallback = function ($cacheKey, $accessToken) {
                 $accessTokenNew = $this->getAccessTokenFromFile($this->_accessTokenPath);
                 $accessTokenNew['access_token'] = $accessToken;
-                $this->_storeAccessTokenToFile($this->_accessTokenPath, $accessTokenNew);
+                $this->storeAccessTokenToFile($this->_accessTokenPath, $accessTokenNew);
                 $this->_client->setAccessToken($accessToken);
             };
             $this->_client->setTokenCallback($tokenCallback);
@@ -161,12 +170,9 @@ class GoogleService
      *
      * @return bool True if redirect header is set
      */
-    private function _redirectToAuthorizationPage(): void
+    public function getAuthorizationPageURL(): string
     {
-        $authUrl = $this->_client->createAuthUrl();
-        $this->logger->debug("Auth URL: " . $authUrl);
-        //echo "URL: {$authUrl}<br />\n";
-        //header("Location: {$authUrl}");
+        return $this->_client->createAuthUrl();
     }
 
     /**
@@ -177,13 +183,13 @@ class GoogleService
      * 
      * @return ?array Access token granted from Google API using code.
      */
-    private static function _getAccessTokenFromCode(Client $client, string $code): ?array
+    private function _getAccessTokenFromCode(string $code): ?array
     {
         if (empty($code)) {
             return null;
         }
 
-        return $client->fetchAccessTokenWithAuthCode(trim($code));
+        return $this->_client->fetchAccessTokenWithAuthCode(trim($code));
     }
 
     /**
@@ -194,8 +200,9 @@ class GoogleService
      * 
      * @return bool
      */
-    private function _storeAccessTokenToFile(string $filePath, array|null $accessToken): bool
-    {
+    protected function storeAccessTokenToFile(
+        string $filePath, array|null $accessToken
+    ): bool {
         if (file_put_contents($filePath, json_encode($accessToken)) === false) {
             return false;
         }
