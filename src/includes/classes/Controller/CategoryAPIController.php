@@ -1,12 +1,10 @@
 <?php
 namespace josterholt\Controller;
 
-use josterholt\Service\RedisService;
-
-
+use Redislabs\Module\ReJSON\ReJSON;
 class CategoryAPIController
 {
-    public function addItemToCategory()
+    public function addItemToCategory(ReJSON $redis)
     {
         $response = [
             "status" => "SUCCESS",
@@ -29,8 +27,6 @@ class CategoryAPIController
         $category_title = (string) $data['category_title'];
         $item_id = (string) $data['item_id'];
 
-
-        $redis = RedisService::getInstance();
 
         /**
          * ADD CATEGORY TO LIST

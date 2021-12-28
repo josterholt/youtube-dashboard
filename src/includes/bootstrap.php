@@ -78,16 +78,34 @@ $container->set(GoogleAPIFetch::class, $fetchObjectBuilder);
 // FETCH END
 
 // REPO INIT START
+$categoryRepositoryBuilder = \DI\create(CategoryRepository::class);
+$categoryRepositoryBuilder->constructor(
+    \DI\get(LoggerInterface::class), \DI\get(ReJSON::class)
+);
+$container->set(CategoryRepository::class, $categoryRepositoryBuilder);
+
 $playlistItemRepositoryBuilder = \DI\create(PlaylistItemRepository::class);
-$playlistItemRepositoryBuilder->constructor(\DI\get(LoggerInterface::class), \DI\get(GoogleAPIFetch::class), \DI\get(GoogleService::class));
+$playlistItemRepositoryBuilder->constructor(
+    \DI\get(LoggerInterface::class),
+    \DI\get(GoogleAPIFetch::class),
+    \DI\get(GoogleService::class)
+);
 $container->set(PlaylistItemRepository::class, $playlistItemRepositoryBuilder);
 
 
 $channelRepositoryBuilder = \DI\create(ChannelRepository::class);
-$channelRepositoryBuilder->constructor(\DI\get(LoggerInterface::class), \DI\get(GoogleAPIFetch::class), \DI\get(GoogleService::class));
+$channelRepositoryBuilder->constructor(
+    \DI\get(LoggerInterface::class),
+    \DI\get(GoogleAPIFetch::class),
+    \DI\get(GoogleService::class)
+);
 $container->set(ChannelRepository::class, $channelRepositoryBuilder);
 
 $subscriptionRepositoryBuilder = \DI\create(SubscriptionRepository::class);
-$subscriptionRepositoryBuilder->constructor(\DI\get(LoggerInterface::class), \DI\get(GoogleAPIFetch::class), \DI\get(GoogleService::class));
+$subscriptionRepositoryBuilder->constructor(
+    \DI\get(LoggerInterface::class),
+    \DI\get(GoogleAPIFetch::class),
+    \DI\get(GoogleService::class)
+);
 $container->set(SubscriptionRepository::class, $subscriptionRepositoryBuilder);
 // REPO INIT END

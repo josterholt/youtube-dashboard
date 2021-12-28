@@ -15,5 +15,6 @@ require_once __DIR__ . '/../../../vendor/autoload.php';
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../../');
 $dotenv->load();
 
-$controller = new CategoryAPIController();
+$controller = $container->make(CategoryAPIController::class);
 $controller->addItemToCategory();
+unset($controller);
