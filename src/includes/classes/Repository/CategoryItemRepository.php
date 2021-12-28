@@ -2,10 +2,11 @@
 namespace josterholt\Repository;
 use Redislabs\Module\ReJSON\ReJSON;
 
-// TODO: This needs to only implement IGenericRepository and not extend.
-class CategoryRepository implements IGenericRepository
+/**
+ * Data query interface for category items. Items contain category ID and an item ID.
+ */
+class CategoryItemRepository implements IGenericRepository
 {
-    protected $_type = "category";
     private $_redis = null;
 
     /**
@@ -16,15 +17,7 @@ class CategoryRepository implements IGenericRepository
         $this->_redis = $redis;
     }
 
-    // TODO: Add unit test for CategoryRepository::getAll()
     public function getAll(): array
-    {
-        return $this->_redis->get("categories.names");
-    }
-
-    // TODO: Add unit test for CategoryRepository::getItems()
-    // This doesn't feel right. Maybe it needs to be broken out.
-    public function getItems(): array
     {
         return $this->_redis->getArray("categories.items");
     }

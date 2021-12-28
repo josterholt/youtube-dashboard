@@ -1,7 +1,8 @@
 <?php
 namespace josterholt\Controller;
 
-use josterholt\Repository\CategoryRepository;
+use josterholt\Repository\CategoryNameRepository;
+use josterholt\Repository\CategoryItemRepository;
 use josterholt\Repository\PlayListItemRepository;
 use josterholt\Repository\SubscriptionRepository;
 use josterholt\Repository\ChannelRepository;
@@ -10,9 +11,15 @@ class YouTubeDashboardController
 {
     /**
      * @Inject
-     * @var    CategoryRepository
+     * @var    CategoryNameRepository
      */
-    private $_categoryRepository;
+    private $_categoryNameRepository;
+
+    /**
+     * @Inject
+     * @var    CategoryItemRepository
+     */
+    private $_categoryItemRepository;    
 
     /**
      * @Inject
@@ -34,9 +41,9 @@ class YouTubeDashboardController
 
     private $_subscriptions = null;
 
-    protected function _itemCategoryLookup()
+    protected function itemCategoryLookup()
     {
-        $data = $this->_categoryRepository->getAll();
+        $data = $this->_categoryNameRepository->getAll();
 
         $category_title_lookup = [];
         foreach($data as $category) {
@@ -44,15 +51,15 @@ class YouTubeDashboardController
         }
 
         $item_category_lookup = [];
-        $data = $this->_categoryRepository->getItems();
-        if(!empty($data)) {
+        $data = $this->_categoryItemRepository->getAll();
+        if (!empty($data)) {
             foreach ($data['mapping'] as $map) {
-                if(empty($map['itemID'])) {
+                if (empty($map['itemID'])) {
                     continue;
                 }
 
                 $category_title = "None";
-                if(isset($category_title_lookup[$map['categoryID']])) {
+                if (isset($category_title_lookup[$map['categoryID']])) {
                     $category_title = $category_title_lookup[$map['categoryID']]['categoryTitle'];
                 }
                 $item_category_lookup[$map['itemID']] = ["categoryID" => $map['categoryID'], "categoryTitle" => $category_title];
@@ -61,7 +68,7 @@ class YouTubeDashboardController
         return $item_category_lookup;
     }
 
-    protected function _getLastActivityLookup()
+    protected function getLastActivityLookup()
     {
         $lastActivityLookup = []; // Store last video upload activity for display
         foreach ($this->_subscriptions as  $subscription) {           
@@ -85,7 +92,7 @@ class YouTubeDashboardController
         return $lastActivityLookup;
     }
 
-    protected function _getChannelsLookup()
+    protected function getChannelsLookup()
     {
         $channels_lookup = [];
         foreach ($this->_subscriptions as  $subscription) {           
@@ -101,7 +108,7 @@ class YouTubeDashboardController
         return $channels_lookup;
     }
 
-    protected function _getPlayListItemsLookup()
+    protected function getPlayListItemsLookup()
     {
         $play_list_items_lookup = [];
         foreach ($this->_subscriptions as  $subscription) {           
@@ -130,12 +137,12 @@ class YouTubeDashboardController
         return $play_list_items_lookup;
     }
 
-    protected function _getGroupedChannelsByCategory()
+    protected function getGroupedChannelsByCategory()
     {
-        $item_category_lookup = $this->_itemCategoryLookup();
-        $play_list_items_lookup = $this->_getPlayListItemsLookup();
-        $channels_lookup = $this->_getChannelsLookup();
-        $lastActivityLookup = $this->_getLastActivityLookup();
+        $item_category_lookup = $this->itemCategoryLookup();
+        $play_list_items_lookup = $this->getPlayListItemsLookup();
+        $channels_lookup = $this->getChannelsLookup();
+        $lastActivityLookup = $this->getLastActivityLookup();
 
 
 
@@ -191,7 +198,7 @@ class YouTubeDashboardController
         $this->_subscriptions = $this->_subscriptionRepository->getAllSubscriptions();
 
         $context = [
-            "grouped_channel_sets" => $this->_getGroupedChannelsByCategory(),
+            "grouped_channel_sets" => $this->getGroupedChannelsByCategory(),
         ];
 
         $loader = new \Twig\Loader\FilesystemLoader('templates');
