@@ -87,55 +87,47 @@ class GoogleServiceTest extends TestCase
         $this->assertFalse($googleService->isAuthenticated);
     }
 
-    /**
-     * Tests ability to fetch YouTubeAPIService instance from GoogleService.
-     * 
-     * @covers GoogleService
-     * 
-     * @return void
-     */
-    public function testGetYouTubeAPIService()
-    {
-        $googleClient = $this->createStub("Google\Client");
-        $authResponse = [
-            "error" => "invalid_grant"
-        ];
-        $googleClient->expects($this->once())
-            ->method("fetchAccessTokenWithAuthCode")
-            ->willReturn($authResponse);
+    // /**
+    //  * Tests ability to fetch YouTubeAPIService instance from GoogleService.
+    //  * 
+    //  * @covers GoogleService
+    //  * 
+    //  * @return void
+    //  */
+    // public function testGetYouTubeAPIService()
+    // {
+    //     $googleClient = $this->createStub("Google\Client");
+    //     $authResponse = [
+    //         "error" => "invalid_grant"
+    //     ];
+    //     $googleClient->expects($this->once())
+    //         ->method("fetchAccessTokenWithAuthCode")
+    //         ->willReturn($authResponse);
 
 
-        $logger = $this->createStub("Psr\Log\LoggerInterface");
+    //     $logger = $this->createStub("Psr\Log\LoggerInterface");
 
-        /**
-         * @var GoogleService $googleService
-         */
-        $googleService = $this->getMockBuilder("josterholt\Service\GoogleService")
-            ->setConstructorArgs(
-                [
-                    $googleClient, "client_secret.json",
-                    "access_token.json", $logger
-                ]
-            )
-            ->onlyMethods(["storeAccessTokenToFile", "getAccessTokenFromFile"])
-            ->getMock();
-        $googleService->method("storeAccessTokenToFile")->willReturn(true);
-        $googleService->method("getAccessTokenFromFile")->willReturn(null);
-        $googleService->initialize("testcode");
+    //     /**
+    //      * @var GoogleService $googleService
+    //      */
+    //     $googleService = $this->getMockBuilder("josterholt\Service\GoogleService")
+    //         ->setConstructorArgs(
+    //             [
+    //                 $googleClient, "client_secret.json",
+    //                 "access_token.json", $logger
+    //             ]
+    //         )
+    //         ->onlyMethods(["storeAccessTokenToFile", "getAccessTokenFromFile"])
+    //         ->getMock();
+    //     $googleService->method("storeAccessTokenToFile")->willReturn(true);
+    //     $googleService->method("getAccessTokenFromFile")->willReturn(null);
+    //     $googleService->initialize("testcode");
 
-        $youTubeService = $googleService->getYouTubeAPIService();
+    //     $youTubeService = $googleService->getYouTubeAPIService();
 
-        $this->assertNotEmpty($youTubeService);
-        $this->assertInstanceOf("Google\Service\YouTube", $youTubeService);
-    }
+    //     $this->assertNotEmpty($youTubeService);
+    //     $this->assertInstanceOf("Google\Service\YouTube", $youTubeService);
+    // }
 
-    /**
-     * @covers GoogleService
-     * 
-     * @return void
-     */
-    public function testGetAll()
-    {
-        $this->markTestIncomplete();
-    }
+
 }

@@ -9,6 +9,7 @@ use Psr\Log\LoggerInterface;
 use Monolog\Handler\StreamHandler;
 use MonoLog\Logger;
 use Google\Client;
+use Google\Service\YouTube;
 
 /**
  * BEGIN AUTOLOAD SCRIPTS
@@ -56,18 +57,31 @@ $redisJSONClient = ReJSON::createWithPhpRedis($redisClient);
 $container->set(ReJSON::class, $redisJSONClient);
 // REDIS END
 
+// GOOGLE CLIENT START
+$googleClientBuilder = \DI\create(Client::class);
+$container->set(Client::class, $googleClientBuilder);
+// GOOGLE CLIENT END
+
 // GOOGLE SERVICE START
 $googleServiceBuilder = \DI\Create(GoogleService::class);
 $googleServiceBuilder->constructor(
-    new Client(), $_ENV['CLIENT_SECRET_FILE_PATH'], $_ENV['ACCESS_TOKEN_FILE_PATH'],
+    \DI\get(Client::class),
+    $_ENV['CLIENT_SECRET_FILE_PATH'],
+    $_ENV['ACCESS_TOKEN_FILE_PATH'],
     \DI\get(LoggerInterface::class)
 );
-$googleServiceBuilder = $container->set(GoogleService::class, $googleServiceBuilder);
+$container->set(GoogleService::class, $googleServiceBuilder);
 
 $googleClientCode = empty($_GET['code'])? null : $_GET['code'];
 $googleService = $container->get(GoogleService::class);
 $googleService->initialize($googleClientCode);
 // GOOGLE SERVICE END
+
+// YouTube API START
+$youTubeBuilder = \DI\create(YouTube::class)
+    ->constructor($googleService->getClient());
+$container->set(YouTube::class, $youTubeBuilder);
+// YouTube API END
 
 
 // FETCH START
@@ -88,7 +102,7 @@ $playlistItemRepositoryBuilder = \DI\create(PlaylistItemRepository::class);
 $playlistItemRepositoryBuilder->constructor(
     \DI\get(LoggerInterface::class),
     \DI\get(GoogleAPIFetch::class),
-    \DI\get(GoogleService::class)
+    \DI\get(YouTube::class)
 );
 $container->set(PlaylistItemRepository::class, $playlistItemRepositoryBuilder);
 
@@ -97,7 +111,7 @@ $channelRepositoryBuilder = \DI\create(ChannelRepository::class);
 $channelRepositoryBuilder->constructor(
     \DI\get(LoggerInterface::class),
     \DI\get(GoogleAPIFetch::class),
-    \DI\get(GoogleService::class)
+    \DI\get(YouTube::class)
 );
 $container->set(ChannelRepository::class, $channelRepositoryBuilder);
 
@@ -105,7 +119,7 @@ $subscriptionRepositoryBuilder = \DI\create(SubscriptionRepository::class);
 $subscriptionRepositoryBuilder->constructor(
     \DI\get(LoggerInterface::class),
     \DI\get(GoogleAPIFetch::class),
-    \DI\get(GoogleService::class)
+    \DI\get(YouTube::class)
 );
 $container->set(SubscriptionRepository::class, $subscriptionRepositoryBuilder);
 // REPO INIT END

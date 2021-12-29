@@ -14,16 +14,16 @@ use Psr\Log\LoggerInterface;
  * 
  * Use:
  * 1. GoogleService::initialize();
- * 2. GoogleService::getService();
+ * 2. GoogleService::getYouTubeAPIService();
  */
 class GoogleService
 {
     /**
      * Instance of Google Client used to with APIs.
      * 
-     * @var \Google\Client
+     * @var Client
      */
-    private $_client = null;
+    protected $client = null;
 
     /**
      * Instance of YouTubeAPI service.
@@ -61,19 +61,18 @@ class GoogleService
     /**
      * Constructor for GoogleService class.
      * 
-     * @param Client          $client             Instance of Google Client
-     * @param string          $clientSecretPath   Path to client secret, Google client
-     * @param string          $accessTokenPath    Path to auth token, used for read and writing
-     * @param LoggerInterface $logger             Instance of a logger
+     * @param Client          $client           Instance of Google Client
+     * @param string          $clientSecretPath Path to client secret, Google client
+     * @param string          $accessTokenPath  Path to auth token, used for read 
+     *                                          and writing.
+     * @param LoggerInterface $logger           Instance of a logger
      * 
      * @return void
      */
     public function __construct(Client $client, string $clientSecretPath,
         string $accessTokenPath, LoggerInterface $logger
     ) {
-        $this->_client = $client;
-        $this->youTubeAPIService = new YouTube($this->_client);
-        
+        $this->client = $client;       
         $this->_clientSecretPath = $clientSecretPath;
         $this->_accessTokenPath = $accessTokenPath;
         $this->logger = $logger;
@@ -101,8 +100,8 @@ class GoogleService
      */
     private function _initGoogleClient()
     {
-        $this->_client->setApplicationName('API code samples');
-        $this->_client->setScopes(
+        $this->client->setApplicationName('API code samples');
+        $this->client->setScopes(
             [
             'https://www.googleapis.com/auth/youtube.readonly',
             ]
@@ -110,8 +109,8 @@ class GoogleService
  
         // https://cloud.google.com/iam/docs/creating-managing-service-account-keys
         $this->logger->debug("Loading config from: ".$this->_accessTokenPath);
-        $this->_client->setAuthConfig($this->_clientSecretPath);
-        $this->_client->setAccessType('offline');
+        $this->client->setAuthConfig($this->_clientSecretPath);
+        $this->client->setAccessType('offline');
     }
 
     /**
@@ -119,9 +118,9 @@ class GoogleService
      * 
      * @return Youtube
      */
-    public function getYouTubeAPIService()
+    public function getClient(): Client
     {
-        return $this->youTubeAPIService;
+        return $this->client;
     }
 
     /**
@@ -151,15 +150,15 @@ class GoogleService
         if (empty($accessToken)) {
             return false;
         } else {
-            $this->_client->setAccessToken($accessToken);
+            $this->client->setAccessToken($accessToken);
 
             $tokenCallback = function ($cacheKey, $accessToken) {
                 $accessTokenNew = $this->getAccessTokenFromFile($this->_accessTokenPath);
                 $accessTokenNew['access_token'] = $accessToken;
                 $this->storeAccessTokenToFile($this->_accessTokenPath, $accessTokenNew);
-                $this->_client->setAccessToken($accessToken);
+                $this->client->setAccessToken($accessToken);
             };
-            $this->_client->setTokenCallback($tokenCallback);
+            $this->client->setTokenCallback($tokenCallback);
         }
         return true;
     }
@@ -172,7 +171,7 @@ class GoogleService
      */
     public function getAuthorizationPageURL(): string
     {
-        return $this->_client->createAuthUrl();
+        return $this->client->createAuthUrl();
     }
 
     /**
@@ -189,7 +188,7 @@ class GoogleService
             return null;
         }
 
-        return $this->_client->fetchAccessTokenWithAuthCode(trim($code));
+        return $this->client->fetchAccessTokenWithAuthCode(trim($code));
     }
 
     /**

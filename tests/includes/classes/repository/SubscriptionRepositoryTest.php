@@ -1,11 +1,11 @@
 <?php
 
-use Google\Collection;
+use Google\Service\YouTube;
 use PHPUnit\Framework\TestCase;
 use josterholt\Repository\SubscriptionRepository;
 use josterholt\Service\GoogleAPIFetch;
 use Redislabs\Module\ReJSON\ReJSON;
-use josterholt\Service\GoogleService;
+
 
 class SubscriptionRepositoryTest extends TestCase
 {
@@ -24,7 +24,7 @@ class SubscriptionRepositoryTest extends TestCase
             ->getMockForAbstractClass();
         
         $redis = $this->createStub(ReJSON::class);
-        $googleService = $this->createStub(GoogleService::class);
+        $youTubeAPI = $this->createStub(YouTube::class);
 
         $googleAPIFetch = $this->getMockBuilder(GoogleAPIFetch::class)
             ->setConstructorArgs([$logger, $redis])
@@ -36,7 +36,7 @@ class SubscriptionRepositoryTest extends TestCase
          * SETUP ENDS
          */
         
-        $subscriptionRepository = new SubscriptionRepository($logger, $googleAPIFetch, $googleService);
+        $subscriptionRepository = new SubscriptionRepository($logger, $googleAPIFetch, $youTubeAPI);
         $subscription_results = $subscriptionRepository->getSubscriptionsFromAPI();
 
         $this->assertCount(count($test_subscriptions), $subscription_results);
@@ -88,7 +88,7 @@ class SubscriptionRepositoryTest extends TestCase
             ->getMockForAbstractClass();
         
         $redis = $this->createStub(ReJSON::class);
-        $googleService = $this->createStub(GoogleService::class);
+        $youTubeAPI = $this->createStub(YouTube::class);
 
         $googleAPIFetch = $this->getMockBuilder(GoogleAPIFetch::class)
             ->setConstructorArgs([$logger, $redis])
@@ -100,7 +100,7 @@ class SubscriptionRepositoryTest extends TestCase
          * SETUP ENDS
          */
         
-        $subscriptionRepository = new SubscriptionRepository($logger, $googleAPIFetch, $googleService);
+        $subscriptionRepository = new SubscriptionRepository($logger, $googleAPIFetch, $youTubeAPI);
         $this->assertCount(count($expected_response), $subscriptionRepository->getAllSubscriptions());
     }
 }   

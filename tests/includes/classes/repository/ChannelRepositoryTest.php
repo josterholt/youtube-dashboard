@@ -1,9 +1,9 @@
 <?php
 
+use Google\Service\YouTube;
 use PHPUnit\Framework\TestCase;
 use josterholt\Service\GoogleAPIFetch;
 use josterholt\Repository\ChannelRepository;
-use josterholt\Service\GoogleService;
 
 
 class ChannelRepositoryTest extends TestCase
@@ -20,9 +20,9 @@ class ChannelRepositoryTest extends TestCase
         // @php-ignore
         $readAdapter->method('get')->willReturn(['Placeholder']);
 
-        $googleService = $this->createStub(GoogleService::class);
+        $youTubeAPI = $this->createStub(YouTube::class);
 
-        $channelRepo = new ChannelRepository($logger, $readAdapter, $googleService);
+        $channelRepo = new ChannelRepository($logger, $readAdapter, $youTubeAPI);
         $channels = $channelRepo->getBySubscriptionId(1);
 
         $this->assertEquals(count($channels), 1);

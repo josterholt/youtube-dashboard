@@ -1,8 +1,8 @@
 <?php
 
+use Google\Service\YouTube;
 use josterholt\Repository\YouTubeRepository;
 use josterholt\Service\GoogleAPIFetch;
-use josterholt\Service\GoogleService;
 use PHPUnit\Framework\TestCase;
 
 class YouTubeRepositoryTest extends TestCase
@@ -15,10 +15,10 @@ class YouTubeRepositoryTest extends TestCase
         $logger = $this->getMockBuilder(Psr\Log\LoggerInterface::class)
             ->getMockForAbstractClass();        
         $readAdapter = $this->createStub(GoogleAPIFetch::class);
-        $googleService = $this->createStub(GoogleService::class);
+        $youTubeAPI = $this->createStub(YouTube::class);
 
         $mock = $this->getMockBuilder(YouTubeRepository::class)
-            ->setConstructorArgs([$logger, $readAdapter, $googleService])
+            ->setConstructorArgs([$logger, $readAdapter, $youTubeAPI])
             ->getMockForAbstractClass();
         $this->assertNotEmpty($mock);
     }
@@ -42,9 +42,9 @@ class YouTubeRepositoryTest extends TestCase
         $logger = $this->getMockBuilder(Psr\Log\LoggerInterface::class)
             ->getMockForAbstractClass();        
         $readAdapter = $this->createStub(GoogleAPIFetch::class);
-        $googleService = $this->createStub(GoogleService::class);
+        $youTubeAPI = $this->createStub(YouTube::class);
         
-        $mock = $this->getMockForAbstractClass(YouTubeRepository::class, [$logger, $readAdapter, $googleService]);
+        $mock = $this->getMockForAbstractClass(YouTubeRepository::class, [$logger, $readAdapter, $youTubeAPI]);
         $this->assertTrue($mock->getReadCacheState(), 'Cache should be enabled by default');
         $mock->disableReadCache(); // Cache is enabled by default
 
@@ -60,9 +60,9 @@ class YouTubeRepositoryTest extends TestCase
         $logger = $this->getMockBuilder(Psr\Log\LoggerInterface::class)
             ->getMockForAbstractClass();
         $readAdapter = $this->createStub(GoogleAPIFetch::class);
-        $googleService = $this->createStub(GoogleService::class);
+        $youTubeAPI = $this->createStub(YouTube::class);
         
-        $mock = $this->getMockForAbstractClass(YouTubeRepository::class, [$logger, $readAdapter, $googleService]);
+        $mock = $this->getMockForAbstractClass(YouTubeRepository::class, [$logger, $readAdapter, $youTubeAPI]);
         $this->assertTrue($mock->getReadCacheState(), 'Cache should be enabled by default');
 
         $mock->disableReadCache();

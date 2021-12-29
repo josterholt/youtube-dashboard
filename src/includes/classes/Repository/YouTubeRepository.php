@@ -4,7 +4,6 @@ namespace josterholt\Repository;
 use Google\Service\YouTube;
 use josterholt\Repository\IGenericRepository;
 use josterholt\Service\GoogleAPIFetch;
-use josterholt\Service\GoogleService;
 use Psr\Log\LoggerInterface;
 /**
  * This repository type will retrieve YouTube videos, 
@@ -18,12 +17,14 @@ abstract class YouTubeRepository implements IGenericRepository
     protected $_readAdapter = null;
     protected $_logger = null;
 
-    public function __construct(LoggerInterface $logger, GoogleAPIFetch $fetch, GoogleService $googleService)
-    {
+    public function __construct(
+        LoggerInterface $logger,
+        GoogleAPIFetch $fetch,
+        YouTube $youTubeAPI
+    ) {
         $this->_logger = $logger;
         $this->_readAdapter = $fetch;
-        $this->_service = $googleService->getYouTubeAPIService();
-        
+        $this->_service = $youTubeAPI;
     }    
 
     public function enableReadCache()
