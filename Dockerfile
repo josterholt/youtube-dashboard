@@ -13,6 +13,7 @@ RUN php composer-setup.php
 RUN php -r "unlink('composer-setup.php');"
 RUN mv composer.phar /usr/local/bin/composer
 RUN composer config --global use-parent-dir true
+RUN export PATH=/var/www/html/vendor/bin:$PATH
 
 RUN pecl install redis
 RUN pecl install xdebug

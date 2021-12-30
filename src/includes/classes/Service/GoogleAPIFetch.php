@@ -18,47 +18,41 @@ use Redislabs\Module\ReJSON\ReJSON;
  */
 class GoogleAPIFetch
 {
+    protected $logger = null;
     private $_redis = null;
-    protected $_useReadCache = true;
+    protected $useReadCache = true;
 
     /**
      * Accepts a Redis client to use for caching as an argument.
      * 
-     * @param  \Redislabs\Module\ReJSON\ReJSON $redis
-     * @return void
+     * @param LoggerInterface $logger Used for logging.
+     * @param  ReJSON $redis Datastore utility.
      */
     public function __construct(LoggerInterface $logger, ReJSON $redis)
     {
-        $this->_logger = $logger;
-        $this->_redis = $redis;
-    }
-
-    /**
-     * Sets Redis client to use for caching.
-     * 
-     * @param  Redislabs\Module\ReJSON\ReJSON $redis
-     * @return void
-     */
-    protected function setRedisClient(ReJSON $redis)
-    {
+        $this->logger = $logger;
         $this->_redis = $redis;
     }
 
     /**
      * Fetch will use cache before calling external resource.
+     * 
+     * @return void
      */
     public function enableReadCache()
     {
-        $this->_useReadCache = true;
+        $this->useReadCache = true;
     }
 
     /**
      * Fetch will retrieve fresh data from external resource,
      * even if cache exists. Results of get() will be cached.
+     * 
+     * @return void
      */
     public function disableReadCache()
     {
-        $this->_useReadCache = false;
+        $this->useReadCache = false;
     }
 
     /**
@@ -69,15 +63,15 @@ class GoogleAPIFetch
      * @param  string   $key
      * @param  string   $path
      * @param  function $query
-     * @param  $forceRefresh
-     * @return array of responses
+     * 
+     * @return array array of responses
      */
     public function get($key, $path, $query)
     {
-        if ($this->_useReadCache) {
+        if ($this->useReadCache) {
             $cache = $this->_redis->get($key, $path);
             if (!empty($cache)) {
-                $this->_logger->debug("<!-- Using cache for {$key} -->\n");
+                $this->logger->debug("<!-- Using cache for {$key} -->\n");
                 return json_decode($cache);
             }
         }
@@ -90,26 +84,26 @@ class GoogleAPIFetch
             $response = $query($queryParams);
             if (empty($response)) {
                 $loop = false;
-                $this->_logger->debug("Empty response.", $queryParams);
+                $this->logger->debug("Empty response.", $queryParams);
                 continue;
             } else {
-                $this->_logger->debug("Adding response to array.");
+                $this->logger->debug("Adding response to array.");
                 $responses[] = $response->toSimpleObject(); // \Google\Collection
             }
 
 
             // Setup next page
             if (empty($response->getNextPageToken()) || (isset($queryParams['pageToken']) && $response->getNextPageToken() == $queryParams['pageToken'])) {
-                $this->_logger->debug("Ending loop.");
+                $this->logger->debug("Ending loop.");
                 $loop = false;
             } else {
                 $queryParams['pageToken'] = $response->getNextPageToken();
-                $this->_logger->debug("Page token set to {$queryParams['pageToken']}");
+                $this->logger->debug("Page token set to {$queryParams['pageToken']}");
             }
         }
 
         $responsesJSONEncoded = json_encode($responses);
-        $this->_logger->debug("Setting cache record.", ["key" => $key, "path" => $path, "length" => strlen($responsesJSONEncoded)]);
+        $this->logger->debug("Setting cache record.", ["key" => $key, "path" => $path, "length" => strlen($responsesJSONEncoded)]);
         $this->_redis->set($key, $path, $responsesJSONEncoded); // Support array of requests
 
         return $responses;

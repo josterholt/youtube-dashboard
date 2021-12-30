@@ -1,41 +1,41 @@
 <?php
 
 use Google\Service\YouTube;
-use josterholt\Repository\YouTubeRepository;
+use josterholt\Repository\AbstractYouTubeRepository;
 use josterholt\Service\GoogleAPIFetch;
 use PHPUnit\Framework\TestCase;
 
-class YouTubeRepositoryTest extends TestCase
+class AbstractYouTubeRepositoryTest extends TestCase
 {
     /**
-     * @covers YouTubeRepository
+     * @covers AbstractYouTubeRepository
      */    
-    public function testCanCreateYouTubeRepositoryObject()
+    public function testCanCreateAbstractYouTubeRepositoryObject()
     {
         $logger = $this->getMockBuilder(Psr\Log\LoggerInterface::class)
             ->getMockForAbstractClass();        
         $readAdapter = $this->createStub(GoogleAPIFetch::class);
         $youTubeAPI = $this->createStub(YouTube::class);
 
-        $mock = $this->getMockBuilder(YouTubeRepository::class)
+        $mock = $this->getMockBuilder(AbstractYouTubeRepository::class)
             ->setConstructorArgs([$logger, $readAdapter, $youTubeAPI])
             ->getMockForAbstractClass();
         $this->assertNotEmpty($mock);
     }
 
     /**
-     * @covers YouTubeRepository
+     * @covers AbstractYouTubeRepository
      */    
     public function testWillThrowExceptionIfArgumentDependenciesMissing()
     {
         $this->expectException(TypeError::class);
-        $stub = $this->getMockBuilder(YouTubeRepository::class)
+        $stub = $this->getMockBuilder(AbstractYouTubeRepository::class)
             ->setConstructorArgs([null, null])
             ->getMockForAbstractClass();
     }
     
     /**
-     * @covers YouTubeRepository
+     * @covers AbstractYouTubeRepository
      */    
     public function testCanEnableCache()
     {
@@ -44,7 +44,7 @@ class YouTubeRepositoryTest extends TestCase
         $readAdapter = $this->createStub(GoogleAPIFetch::class);
         $youTubeAPI = $this->createStub(YouTube::class);
         
-        $mock = $this->getMockForAbstractClass(YouTubeRepository::class, [$logger, $readAdapter, $youTubeAPI]);
+        $mock = $this->getMockForAbstractClass(AbstractYouTubeRepository::class, [$logger, $readAdapter, $youTubeAPI]);
         $this->assertTrue($mock->getReadCacheState(), 'Cache should be enabled by default');
         $mock->disableReadCache(); // Cache is enabled by default
 
@@ -53,7 +53,7 @@ class YouTubeRepositoryTest extends TestCase
     }
 
     /**
-     * @covers YouTubeRepository
+     * @covers AbstractYouTubeRepository
      */
     public function testCanDisableCache()
     {
@@ -62,7 +62,7 @@ class YouTubeRepositoryTest extends TestCase
         $readAdapter = $this->createStub(GoogleAPIFetch::class);
         $youTubeAPI = $this->createStub(YouTube::class);
         
-        $mock = $this->getMockForAbstractClass(YouTubeRepository::class, [$logger, $readAdapter, $youTubeAPI]);
+        $mock = $this->getMockForAbstractClass(AbstractYouTubeRepository::class, [$logger, $readAdapter, $youTubeAPI]);
         $this->assertTrue($mock->getReadCacheState(), 'Cache should be enabled by default');
 
         $mock->disableReadCache();
@@ -70,7 +70,7 @@ class YouTubeRepositoryTest extends TestCase
     }
 
     /**
-     * @covers YouTubeRepository
+     * @covers AbstractYouTubeRepository
      */
     public function testCanGetAllItems()
     {
@@ -78,7 +78,7 @@ class YouTubeRepositoryTest extends TestCase
     }
 
     /**
-     * @covers YouTubeRepository
+     * @covers AbstractYouTubeRepository
      */
     public function testCanGetItemById()
     {
@@ -86,7 +86,7 @@ class YouTubeRepositoryTest extends TestCase
     }
 
     /**
-     * @covers YouTubeRepository
+     * @covers AbstractYouTubeRepository
      */
     public function testCanCreateItemInDataStore()
     {
@@ -94,7 +94,7 @@ class YouTubeRepositoryTest extends TestCase
     }
 
     /**
-     * @covers YouTubeRepository
+     * @covers AbstractYouTubeRepository
      */
     public function testCanUpdateItemInDataStore()
     {
@@ -102,7 +102,7 @@ class YouTubeRepositoryTest extends TestCase
     }
 
     /**
-     * @covers YouTubeRepository
+     * @covers AbstractYouTubeRepository
      */
     public function testCanDeleteItemInDataStore()
     {

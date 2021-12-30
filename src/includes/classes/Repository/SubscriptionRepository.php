@@ -2,11 +2,8 @@
 namespace josterholt\Repository;
 
 
-class SubscriptionRepository extends YouTubeRepository
+class SubscriptionRepository extends AbstractYouTubeRepository
 {
-    protected $_type = 'subscription';
-    protected $_readAdapter = null;
-
     /**
      *  Fetch channel subscriptions of authenticated user.
      *
@@ -30,12 +27,12 @@ class SubscriptionRepository extends YouTubeRepository
      */
     public function getSubscriptionsFromAPI(): array
     {
-        return $this->_readAdapter->get(
+        return $this->readAdapter->get(
             'youtube.subscriptions', '.', function ($queryParams) {
                 $queryParams["mine"] = true;
             
                 $subscriptions = $this->_service->subscriptions->listSubscriptions('contentDetails,snippet', $queryParams);
-                $this->_logger->debug("Fetched " . count($subscriptions) . " subscriptions.");
+                $this->logger->debug("Fetched " . count($subscriptions) . " subscriptions.");
                 return $subscriptions;
             }
         );
@@ -65,7 +62,7 @@ class SubscriptionRepository extends YouTubeRepository
      *    }
      * ]
      */
-    protected function processResults(Array $results)
+    protected function processResults(Array $results): array
     {       
         $subscriptions = [];
         if ($results) {
@@ -79,5 +76,30 @@ class SubscriptionRepository extends YouTubeRepository
         }
 
         return $subscriptions;
+    }
+
+    public function getAll(): array
+    {
+        return [];
+    }
+
+    public function getById($id): object|null
+    {
+        return null;
+    }
+    
+    public function create(object $record): bool
+    {
+        return false;
+    }
+
+    public function update(object $record): bool
+    {
+        return false;
+    }
+
+    public function delete($id): bool
+    {
+        return false;
     }
 }
