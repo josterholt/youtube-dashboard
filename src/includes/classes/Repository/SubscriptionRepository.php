@@ -27,14 +27,15 @@ class SubscriptionRepository extends AbstractYouTubeRepository
      */
     public function getSubscriptionsFromAPI(): array
     {
+        $getSubscriptionsFromGoogleAPI = function ($queryParams) {
+            $queryParams["mine"] = true;
+            $subscriptions = $this->service->subscriptions->listSubscriptions('contentDetails,snippet', $queryParams);
+            $this->logger->debug("Fetched " . count($subscriptions) . " subscriptions.");
+            return $subscriptions;
+        };
+
         return $this->readAdapter->get(
-            'youtube.subscriptions', '.', function ($queryParams) {
-                $queryParams["mine"] = true;
-            
-                $subscriptions = $this->_service->subscriptions->listSubscriptions('contentDetails,snippet', $queryParams);
-                $this->logger->debug("Fetched " . count($subscriptions) . " subscriptions.");
-                return $subscriptions;
-            }
+            'youtube.subscriptions', '.', $getSubscriptionsFromGoogleAPI
         );
     }
 
