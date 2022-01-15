@@ -29,8 +29,7 @@ build/coverage
 .vscode
 
 # Project config
-client_secret.json
-access_token.json
+secrets
 
 # Redis TMP data
 _redis_data

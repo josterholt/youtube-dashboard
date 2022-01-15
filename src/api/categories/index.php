@@ -1,19 +1,14 @@
 <?php
 use josterholt\Controller\CategoryAPIController;
 
-/**
- * BEGIN AUTOLOAD SCRIPTS
- */
-if (!file_exists(__DIR__ . '/../../../vendor/autoload.php')) {
-    throw new Exception(sprintf('Please run "composer require google/apiclient:~2.0" in "%s"', __DIR__));
-}
-require_once __DIR__ . '/../../../vendor/autoload.php';
-/**
- * END AUTOLOAD SCRIPTS
- */
+require_once __DIR__."/../../includes/bootstrap.php";
 
-$dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../../');
-$dotenv->load();
+if (!$googleService->isAuthenticated) {
+    echo "\n\n";
+    echo "Use the following URL to authenticate:\n";
+    echo $googleService->getAuthorizationPageURL()."\n";
+    exit(0);
+}
 
 $controller = $container->make(CategoryAPIController::class);
 $controller->addItemToCategory();

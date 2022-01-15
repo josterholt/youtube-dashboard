@@ -4,7 +4,13 @@ namespace josterholt\Controller;
 use Redislabs\Module\ReJSON\ReJSON;
 class CategoryAPIController
 {
-    public function addItemToCategory(ReJSON $redis)
+    private $_redis = null;
+
+    public function __construct(ReJSON $redis)
+    {
+        $this->_redis = $redis;
+    }
+    public function addItemToCategory()
     {
         $response = [
             "status" => "SUCCESS",
@@ -31,7 +37,7 @@ class CategoryAPIController
         /**
          * ADD CATEGORY TO LIST
          */
-        $category_names = $redis->get("categories.names", ".");
+        $category_names = $this->_redis->get("categories.names", ".");
         if (empty($category_names)) {
             echo json_encode(["status" => "FAIL", "error" => "No categories found"]);
             die();
@@ -55,12 +61,12 @@ class CategoryAPIController
         /**
          * ADD ITEM TO LIST
          */
-        $item_map = $redis->get("categories.items", ".");
+        $item_map = $this->_redis->get("categories.items", ".");
         if (empty($item_map)) {
-            $redis->set("categories.items", ".", ["mapping" => []]);
+            $this->_redis->set("categories.items", ".", ["mapping" => []]);
         }
 
-        if (!$redis->arrappend("categories.items", "mapping", ["categoryID" => $category_id, "itemID" => $item_id])) {
+        if (!$this->_redis->arrappend("categories.items", "mapping", ["categoryID" => $category_id, "itemID" => $item_id])) {
             $response["status"] = "FAIL";
             $response["error"] = "Unable to add item to categories";
         }
@@ -69,7 +75,7 @@ class CategoryAPIController
          */
 
 
-        $mapping = $redis->getArray("categories.items", ".mapping");
+        $mapping = $this->_redis->getArray("categories.items", ".mapping");
 
 
         $mapped_items = [];
