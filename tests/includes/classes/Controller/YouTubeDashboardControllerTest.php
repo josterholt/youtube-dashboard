@@ -1,5 +1,6 @@
 <?php
 use PHPUnit\Framework\TestCase;
+use josterholt\Controller\YouTubeDashboardController;
 
 class YouTubeDashboardControllerTest extends TestCase
 {
@@ -8,6 +9,7 @@ class YouTubeDashboardControllerTest extends TestCase
      */
     public function testVideoListing()
     {
+        $YouTubeDashboardController = new YouTubeDashboardController();
         $this->markTestIncomplete();
     }
 }

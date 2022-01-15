@@ -10,7 +10,6 @@
             <option disabled selected>Select a Category Filter</option>
             <option value="NO_FILTER">No Filter</option>
         </select>
-        <div>{{ grouped_channel_sets | length }} subscriptions</div>
     </div>
 
     {% for set in grouped_channel_sets %} {% if set.category.categoryID == 0 %}
