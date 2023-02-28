@@ -32,6 +32,12 @@ docker exec -it [container name] bash
 redis-cli
 ```
 
+## Add Categories
+```
+# Start redis-cli client
+JSON.ARRAPPEND categories.names . '{ "id": [unique id], "title": "Name of category" }'
+```
+
 ## Dependencies
 
 -   [Google APIs Client](https://github.com/googleapis/google-api-php-client)

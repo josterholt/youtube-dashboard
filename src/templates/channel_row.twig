@@ -13,6 +13,8 @@
             href="https://youtube.com/channel/{{
                 subscription.snippet.resourceId.channelId
             }}"
+            target="_blank"
+            rel="noopener"
             >{{ subscription.snippet.title }}</a
         >
         ({{ last_activity }})
@@ -42,7 +44,7 @@
             Show Videos
         </button>
     </div>
-    <ul
+    <!-- <ul
         class="formatted-list"
         style="display: none"
         id="js-video-list-{{ subscription.snippet.resourceId.channelId }}"
@@ -70,5 +72,5 @@
         </li>
         {% endfor %}
     </ul>
-    {% endif %}
+    {% endif %} -->
 </div>

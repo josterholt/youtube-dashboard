@@ -2,13 +2,24 @@
  * ADD CATEGORY FUNCTIONALITY
  */
 const categories = [
-    { id: 1001, title: "Engineering" },
+    { id: 1016, title: "Career" },
     { id: 1002, title: "Creepypasta" },
     { id: 1003, title: "Documentary" },
+    { id: 1001, title: "Engineering" },
+    { id: 1018, title: "Entertainment" },
     { id: 1004, title: "Games" },
+    { id: 1013, title: "Game Development" },
+    { id: 1014, title: "Marketing" },
     { id: 1005, title: "Music" },
+    { id: 1012, title: "Movies" },
+    { id: 1015, title: "Organization" },
     { id: 1006, title: "Psychology" },
+    { id: 1017, title: "Science" },
+    { id: 1011, title: "Self-Help" },
+    { id: 1009, title: "Stories" },
     { id: 1007, title: "Streaming" },
+    { id: 1010, title: "Technical" },
+    { id: 1008, title: "Unfiction" }
 ];
 
 function toggleDisplay(evt, channelId) {
@@ -34,34 +45,31 @@ function add_category(evt) {
     associate_category(node.attributes["js-channel-id-hash"]?.nodeValue , node.selectedOptions[0].value, node.selectedOptions[0].label);
 }
 
-function associate_category(item_id, category_id, category_title) {
+async function associate_category(item_id, category_id, category_title) {
     var data = {
         category_id: category_id,
         category_title: category_title,
         item_id: item_id
     }
     
-    fetch("/api/categories", { method: "POST", body: JSON.stringify(data) })
-    .then(function (response) {
-        return response.json();
-    })
-    .then(function (data) {
-        console.log(data);
-        location.reload();
-    })
-    .catch(function (error) {
-        console.log(error);
-    });
+    return fetch("/api/categories", { method: "POST", body: JSON.stringify(data) })
 }
 
 function update_categories() {
     var selector_nodes = document.querySelectorAll("[name=add_category]");
+
+    var associate_calls = [];
     selector_nodes.forEach(function (selector_node) {
         var selected_index = selector_node.selectedIndex;
 
         if(selected_index > 0) {
-            associate_category(selector_node.getAttribute("js-channel-id-hash"), selector_node.value, selector_node.options[selected_index].label);
+            associate_calls.push(associate_category(selector_node.getAttribute("js-channel-id-hash"), selector_node.value, selector_node.options[selected_index].label));
         }
+    })
+
+    Promise.all(associate_calls).then(function (values) {
+        console.log("Sync complete, reloading page...")
+        location.reload()
     })
 }
 

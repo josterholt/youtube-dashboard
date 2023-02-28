@@ -18,6 +18,7 @@
     {% else %}
     <h2>{{ set.category.categoryTitle }}</h2>
     {% endif %}
+    <div style="margin: 0 0 25px 0; color: #333;">{{ set.items|length }} Channels</div>
 
     <div class="list-container">
         {% for channel_set in set.items %}

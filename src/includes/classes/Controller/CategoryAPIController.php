@@ -1,17 +1,30 @@
 <?php
+
 namespace josterholt\Controller;
 
 use Redislabs\Module\ReJSON\ReJSON;
+use Psr\Log\LoggerInterface;
+
 class CategoryAPIController
 {
     private $_redis = null;
+    private $_logger = null;
 
-    public function __construct(ReJSON $redis)
+    /**
+     * Accepts a Redis client to use for caching as an argument.
+     * 
+     * @param LoggerInterface $logger Used for logging.
+     * @param  ReJSON $redis Datastore utility.
+     */
+    public function __construct(LoggerInterface $logger, ReJSON $redis)
     {
         $this->_redis = $redis;
+        $this->_logger = $logger;
     }
     public function addItemToCategory()
     {
+        $time_pre = microtime(true);
+
         $response = [
             "status" => "SUCCESS",
             "response" => "",
@@ -33,6 +46,8 @@ class CategoryAPIController
         $category_title = (string) $data['category_title'];
         $item_id = (string) $data['item_id'];
 
+
+        $this->_logger->debug("[CategoryAPIController] Before Add Category to List: " . microtime(true) - $time_pre . "\n");
 
         /**
          * ADD CATEGORY TO LIST
@@ -77,6 +92,8 @@ class CategoryAPIController
 
         $mapping = $this->_redis->getArray("categories.items", ".mapping");
 
+
+        $this->_logger->debug("[CategoryAPIController] Mapping items... " . microtime(true) - $time_pre . "\n");
 
         $mapped_items = [];
         foreach ($mapping as $map_item) {
