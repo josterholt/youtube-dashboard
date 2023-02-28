@@ -9,7 +9,7 @@ use josterholt\Controller\YouTubeDashboardController;
  * with a one liner for each initialization.
  */
 require_once "includes/bootstrap.php";
-
+ini_set('memory_limit', '2048M');
 $controller = $container->make(YouTubeDashboardController::class);
 $controller->videoListing();
 unset($controller);

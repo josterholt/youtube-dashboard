@@ -1,6 +1,5 @@
 {
     "require": {
-        "google/apiclient": "^2.0",
         "mkorkmaz/redislabs-rejson": "1.1.1",
         "vlucas/phpdotenv": "5.3.0",
         "twig/twig": "^3.3",
@@ -9,7 +8,8 @@
         "monolog/monolog": "^2.3",
         "psr/log": "^3.0",
         "doctrine/annotations": "^1.13",
-        "phpmd/phpmd": "@stable"
+        "phpmd/phpmd": "@stable",
+        "google/apiclient": "~2.0"
     },
     "autoload": {
         "classmap": [
@@ -18,5 +18,9 @@
     },
     "require-dev": {
         "squizlabs/php_codesniffer": "^3.6"
+    },
+    "respositories": {
+        "type": "vcs",
+        "url": "git@github.com:josterholt/youtube-dashboard.git"
     }
 }

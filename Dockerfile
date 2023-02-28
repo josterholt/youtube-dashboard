@@ -1,6 +1,6 @@
 FROM php:8.1-cli
-RUN cp /usr/local/etc/php/php.ini-development /usr/local/etc/php/php.ini
-RUN pear config-set php_ini /usr/local/etc/php/php.ini
+RUN cp /usr/local/etc/php/php.ini-development /usr/local/etc/php/php.development.ini
+RUN pear config-set php_ini /usr/local/etc/php/php.development.ini
 
 RUN apt update
 RUN apt install zip -y
@@ -14,6 +14,7 @@ RUN php -r "unlink('composer-setup.php');"
 RUN mv composer.phar /usr/local/bin/composer
 RUN composer config --global use-parent-dir true
 RUN export PATH=/var/www/html/vendor/bin:$PATH
+COPY _docker/composer/config.json /root/.composer/config.json
 
 RUN pecl install redis
 RUN pecl install xdebug

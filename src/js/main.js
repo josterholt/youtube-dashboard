@@ -1,3 +1,16 @@
+/**
+ * ADD CATEGORY FUNCTIONALITY
+ */
+const categories = [
+    { id: 1001, title: "Engineering" },
+    { id: 1002, title: "Creepypasta" },
+    { id: 1003, title: "Documentary" },
+    { id: 1004, title: "Games" },
+    { id: 1005, title: "Music" },
+    { id: 1006, title: "Psychology" },
+    { id: 1007, title: "Streaming" },
+];
+
 function toggleDisplay(evt, channelId) {
     const el = document.getElementById("js-video-list-" + channelId);
     if (!el) {
@@ -13,6 +26,43 @@ function toggleDisplay(evt, channelId) {
         el.style.display = "none";
         button_el.innerHTML = "Show Videos";
     }
+}
+
+function add_category(evt) {
+    const node = evt.target.parentNode.getElementsByTagName("select")[0];
+
+    associate_category(node.attributes["js-channel-id-hash"]?.nodeValue , node.selectedOptions[0].value, node.selectedOptions[0].label);
+}
+
+function associate_category(item_id, category_id, category_title) {
+    var data = {
+        category_id: category_id,
+        category_title: category_title,
+        item_id: item_id
+    }
+    
+    fetch("/api/categories", { method: "POST", body: JSON.stringify(data) })
+    .then(function (response) {
+        return response.json();
+    })
+    .then(function (data) {
+        console.log(data);
+        location.reload();
+    })
+    .catch(function (error) {
+        console.log(error);
+    });
+}
+
+function update_categories() {
+    var selector_nodes = document.querySelectorAll("[name=add_category]");
+    selector_nodes.forEach(function (selector_node) {
+        var selected_index = selector_node.selectedIndex;
+
+        if(selected_index > 0) {
+            associate_category(selector_node.getAttribute("js-channel-id-hash"), selector_node.value, selector_node.options[selected_index].label);
+        }
+    })
 }
 
 window.onload = function (event) {
@@ -31,18 +81,6 @@ window.onload = function (event) {
      * END SHOW/HIDE VIDEOS FUNCTIONALITY
      */
 
-    /**
-     * ADD CATEGORY FUNCTIONALITY
-     */
-    const categories = [
-        { id: 1001, title: "Engineering" },
-        { id: 1002, title: "Creepypasta" },
-        { id: 1003, title: "Documentary" },
-        { id: 1004, title: "Games" },
-        { id: 1005, title: "Music" },
-        { id: 1006, title: "Psychology" },
-        { id: 1007, title: "Streaming" },
-    ];
 
     Array.from(document.querySelectorAll("[js-data-src]")).forEach((el) => {
         categories.forEach(function (category) {
@@ -60,30 +98,9 @@ window.onload = function (event) {
         );
     });
 
-    function add_category(evt) {
-        const node = evt.target.parentNode.getElementsByTagName("select")[0];
-
-        const data = {
-            category_id: node.selectedOptions[0].value,
-            category_title: node.selectedOptions[0].label,
-            item_id: node.attributes["js-channel-id-hash"]?.nodeValue,
-        };
-
-        fetch("/api/categories", { method: "POST", body: JSON.stringify(data) })
-            .then(function (response) {
-                return response.json();
-            })
-            .then(function (data) {
-                console.log(data);
-                location.reload();
-            })
-            .catch(function (error) {
-                console.log(error);
-            });
-    }
 
     document.getElementsByName("category_submit").forEach(function (el) {
-        el.addEventListener("click", add_category);
+        el.addEventListener("click", update_categories);
     });
 
     document
