@@ -5,6 +5,17 @@
 3. Create .env file at root folder of this app.
    a. Use the template below, replace values as needed.
 
+
+### Populating Subscriptions and Videos
+
+```
+# From host
+docker exec [container name] php /var/www/html/src/utils/sync_videos.php
+
+# From container
+php ./src/utils/sync_videos.php
+```
+
 ### .env
 
 ACCESS_TOKEN_FILE_PATH=./access_token.json

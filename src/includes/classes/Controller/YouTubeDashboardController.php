@@ -191,8 +191,12 @@ class YouTubeDashboardController
                 || ($selected_category == "UNCATEGORIZED" && $category['categoryID'] == 0)
             ) {
                 $grouped_channel_sets[$category['categoryID']]['category'] = $category;
-                $channel = $channels_lookup[$subscription->snippet->resourceId->channelId];
-                $grouped_channel_sets[$category['categoryID']]['items'][] = ["subscription" => $subscription, "channel" => $channel, "play_list_items" => $play_list_items, "last_activity" => $last_activity];
+                $grouped_channel_sets[$category['categoryID']]['items'][] = [
+                    "subscription" => $subscription,
+                    "channel" => $channels_lookup[$subscription->snippet->resourceId->channelId],
+                    "play_list_items" => $play_list_items,
+                    "last_activity" => $last_activity
+                ];
             }
         }
 
@@ -214,13 +218,49 @@ class YouTubeDashboardController
         return $grouped_channel_sets;
     }
 
+    private function _paginateCategorizedSubscriptions(array $categorized_channels, int $limit, int $offset)
+    {
+        $paginated_list = [];
+        $total_count = 0;
+        $category_offset = $offset;
+
+        for ($i = 0; $i <= count($categorized_channels); $i++) {
+            $category = $categorized_channels[$i];
+            $paginated_item_list = array_slice($category['items'], $offset);
+
+            if ($total_count + count($paginated_item_list) > $limit) {
+                $diff_count = $limit - ($total_count + count($paginated_item_list));
+                $paginated_item_list = array_slice($paginated_item_list, 0, $diff_count);
+            }
+
+            $category_offset = max($category_offset - count($paginated_item_list), 0);
+
+            if (count($paginated_item_list) > 0) {
+                $paginated_list[] = array_replace($category, ["items" => $paginated_item_list]);
+            }
+
+            $total_count += count($paginated_item_list);
+
+            if ($total_count == $limit) {
+                break;
+            }
+        }
+
+        return $paginated_list;
+    }
+
     public function videoListing()
     {
-        $this->_subscriptions = $this->_subscriptionRepository
-            ->getAllSubscriptions();
+        $limit  = 10;
+        $offset = 0;
+        if (isset($_GET['offset'])) {
+            $offset = $_GET['offset'];
+        }
+
+        $this->_subscriptions = $this->_subscriptionRepository->getAllSubscriptions();
 
         $context = [
-            "grouped_channel_sets" => $this->getGroupedChannelsByCategory(),
+            "grouped_channel_sets" => $this->_paginateCategorizedSubscriptions($this->getGroupedChannelsByCategory(), $limit, $offset)
         ];
 
         $loader = new \Twig\Loader\FilesystemLoader('templates');

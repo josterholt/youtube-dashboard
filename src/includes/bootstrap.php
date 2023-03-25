@@ -1,4 +1,5 @@
 <?php
+
 use josterholt\Service\GoogleAPIFetch;
 use josterholt\Service\GoogleService;
 use josterholt\Repository\PlaylistItemRepository;
@@ -72,7 +73,7 @@ $googleServiceBuilder->constructor(
 );
 $container->set(GoogleService::class, $googleServiceBuilder);
 
-$googleClientCode = empty($_GET['code'])? null : $_GET['code'];
+$googleClientCode = empty($_GET['code']) ? null : $_GET['code'];
 $googleService = $container->get(GoogleService::class);
 $googleService->initialize($googleClientCode);
 // GOOGLE SERVICE END
@@ -94,7 +95,8 @@ $container->set(GoogleAPIFetch::class, $fetchObjectBuilder);
 // REPO INIT START
 $categoryRepositoryBuilder = \DI\create(CategoryRepository::class);
 $categoryRepositoryBuilder->constructor(
-    \DI\get(LoggerInterface::class), \DI\get(ReJSON::class)
+    \DI\get(LoggerInterface::class),
+    \DI\get(ReJSON::class)
 );
 $container->set(CategoryRepository::class, $categoryRepositoryBuilder);
 

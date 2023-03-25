@@ -1,7 +1,9 @@
 <?php
+
 /**
  * Wrapper for Google Service and YouTube API.
  */
+
 namespace josterholt\Service;
 
 use \Google\Service\YouTube;
@@ -69,10 +71,13 @@ class GoogleService
      * 
      * @return void
      */
-    public function __construct(Client $client, string $clientSecretPath,
-        string $accessTokenPath, LoggerInterface $logger
+    public function __construct(
+        Client $client,
+        string $clientSecretPath,
+        string $accessTokenPath,
+        LoggerInterface $logger
     ) {
-        $this->client = $client;       
+        $this->client = $client;
         $this->_clientSecretPath = $clientSecretPath;
         $this->_accessTokenPath = $accessTokenPath;
         $this->logger = $logger;
@@ -103,12 +108,12 @@ class GoogleService
         $this->client->setApplicationName('API code samples');
         $this->client->setScopes(
             [
-            'https://www.googleapis.com/auth/youtube.readonly',
+                'https://www.googleapis.com/auth/youtube.readonly',
             ]
         );
- 
+
         // https://cloud.google.com/iam/docs/creating-managing-service-account-keys
-        $this->logger->debug("Loading config from: ".$this->_accessTokenPath);
+        $this->logger->debug("Loading config from: " . $this->_accessTokenPath);
         $this->client->setAuthConfig($this->_clientSecretPath);
         $this->client->setAccessType('offline');
     }
@@ -134,19 +139,19 @@ class GoogleService
     protected function checkClientAccess($code = null): bool
     {
         $accessToken = $this->getAccessTokenFromFile($this->_accessTokenPath);
-    
+
         if ($accessToken == null && !empty($code)) {
             $accessToken = $this->_getAccessTokenFromCode($code);
-    
+
             if (empty($accessToken['error'])) {
                 $this->storeAccessTokenToFile($this->_accessTokenPath, $accessToken);
             }
         }
-    
+
         if (!empty($accessToken) && !empty($accessToken['error'])) {
             $accessToken = null;
         }
-    
+
         if (empty($accessToken)) {
             return false;
         } else {
@@ -160,6 +165,11 @@ class GoogleService
             };
             $this->client->setTokenCallback($tokenCallback);
         }
+
+        if ($this->client->isAccessTokenExpired()) {
+            return false;
+        }
+
         return true;
     }
 
@@ -200,7 +210,8 @@ class GoogleService
      * @return bool
      */
     protected function storeAccessTokenToFile(
-        string $filePath, array|null $accessToken
+        string $filePath,
+        array|null $accessToken
     ): bool {
         if (file_put_contents($filePath, json_encode($accessToken)) === false) {
             return false;
