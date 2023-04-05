@@ -155,6 +155,8 @@ class YouTubeDashboardController
 
     protected function getGroupedChannelsByCategory()
     {
+        $NUM_VIDEOS_DISPLAYED = 5;
+
         $item_category_lookup = $this->itemCategoryLookup();
         $play_list_items_lookup = $this->getPlayListItemsLookup();
         $channels_lookup = $this->getChannelsLookup();
@@ -172,7 +174,11 @@ class YouTubeDashboardController
             $displayed_channels[] = $subscription->snippet->resourceId->channelId;
             $play_list_items = $play_list_items_lookup[$subscription->snippet->resourceId->channelId];
 
-            $last_activity = "Last Activity: ";
+            if (count($play_list_items) > 0) {
+                $play_list_items[0]->items = array_slice($play_list_items[0]->items, 0, $NUM_VIDEOS_DISPLAYED);
+            }
+
+            $last_activity = "Updated: ";
             if (isset($lastActivityLookup[$subscription->snippet->resourceId->channelId])) {
                 $last_activity .= date('m/d/y', $lastActivityLookup[$subscription->snippet->resourceId->channelId]);
             } else {
@@ -225,15 +231,20 @@ class YouTubeDashboardController
         $category_offset = $offset;
 
         for ($i = 0; $i <= count($categorized_channels); $i++) {
+            // @todo look into why there are missing indexes
+            if (!isset($categorized_channels[$i])) {
+                continue;
+            }
+
             $category = $categorized_channels[$i];
-            $paginated_item_list = array_slice($category['items'], $offset);
+            $paginated_item_list = array_slice($category['items'], $category_offset);
 
             if ($total_count + count($paginated_item_list) > $limit) {
                 $diff_count = $limit - ($total_count + count($paginated_item_list));
                 $paginated_item_list = array_slice($paginated_item_list, 0, $diff_count);
             }
 
-            $category_offset = max($category_offset - count($paginated_item_list), 0);
+            $category_offset = max($category_offset - count($category['items']), 0);
 
             if (count($paginated_item_list) > 0) {
                 $paginated_list[] = array_replace($category, ["items" => $paginated_item_list]);
@@ -257,10 +268,21 @@ class YouTubeDashboardController
             $offset = $_GET['offset'];
         }
 
+        $current_page = 1;
+        if ($offset > 0) {
+            $current_page = max($limit / $offset, 1);
+        }
+
         $this->_subscriptions = $this->_subscriptionRepository->getAllSubscriptions();
+        $subscription_count = count($this->_subscriptions);
 
         $context = [
-            "grouped_channel_sets" => $this->_paginateCategorizedSubscriptions($this->getGroupedChannelsByCategory(), $limit, $offset)
+            "grouped_channel_sets" => $this->_paginateCategorizedSubscriptions($this->getGroupedChannelsByCategory(), $limit, $offset),
+            "pagination" => [
+                "num_pages"    =>  ceil($subscription_count / $limit),
+                "current_page" => $current_page,
+                "limit"        => $limit
+            ]
         ];
 
         $loader = new \Twig\Loader\FilesystemLoader('templates');

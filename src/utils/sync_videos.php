@@ -10,6 +10,6 @@ if (!$googleService->isAuthenticated) {
     echo "\033[34m" . $googleService->getAuthorizationPageURL() . "\033[39m\n";
     exit(0);
 }
-die();
+
 $syncController = $container->make(SyncVideosController::class);
 $syncController->sync();

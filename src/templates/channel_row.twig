@@ -1,26 +1,27 @@
 <div class="list-row-container">
-    <!-- Channel ID: {{ subscription.snippet.resourceId.channelId }} -->
-    <div class="title-container">
-        <a
-            href="https://youtube.com/channel/{{
-                subscription.snippet.resourceId.channelId
-            }}"
-            target="_blank"
-            rel="noopener"
-            ><img src="{{ subscription.snippet.thumbnails.default.url }}"
-        /></a>
-        <a
-            href="https://youtube.com/channel/{{
-                subscription.snippet.resourceId.channelId
-            }}"
-            target="_blank"
-            rel="noopener"
-            >{{ subscription.snippet.title }}</a
-        >
-        ({{ last_activity }})
-    </div>
-    <div class="description-container">
-        {{ subscription.snippet.description }}
+    <div class="subscription-detail-container">
+        <div class="title-container">
+            <a
+                href="https://youtube.com/channel/{{
+                    subscription.snippet.resourceId.channelId
+                }}"
+                target="_blank"
+                rel="noopener"
+                ><img src="{{ subscription.snippet.thumbnails.default.url }}"
+            /></a>
+            <a
+                href="https://youtube.com/channel/{{
+                    subscription.snippet.resourceId.channelId
+                }}"
+                target="_blank"
+                rel="noopener"
+                >{{ subscription.snippet.title }}</a
+            >
+            <!-- {{ last_activity }} -->
+        </div>
+        <div class="description-container">
+            {{ subscription.snippet.description }}
+        </div>
     </div>
     <div class="controls-container">
         <select
@@ -36,21 +37,12 @@
     <!-- {{subscription.snippet.resourceId.channelId}} -->
 
     {% if play_list_items %}
-    <div style="margin-bottom: 25px">
-        <button
-            class="js-video-list-toggle video-toggle"
-            js-channelId="{{ subscription.snippet.resourceId.channelId }}"
-        >
-            Show Videos
-        </button>
-    </div>
-    <ul
-        class="formatted-list"
-        style="display: none"
+    <div
+        class="formatted-list video-list"
         id="js-video-list-{{ subscription.snippet.resourceId.channelId }}"
     >
         {% for video in play_list_items.0.items %}
-        <li>
+        <div>
             <a
                 href="https://youtube.com/watch?v={{
                     video.snippet.resourceId.videoId
@@ -59,18 +51,21 @@
                 rel="noopener"
                 ><img src="{{ video.snippet.thumbnails.default.url }}"
             /></a>
-
-            <a
-                href="https://youtube.com/watch?v={{
-                    video.snippet.resourceId.videoId
-                }}"
-                target="_blank"
-                rel="noopener"
-                >{{ video.snippet.title }}</a
-            >
-            (Published: {{ video.snippet.publishedAt|date('m/d/Y') }})
-        </li>
+            <div class="video-title">
+                <a
+                    href="https://youtube.com/watch?v={{
+                        video.snippet.resourceId.videoId
+                    }}"
+                    target="_blank"
+                    rel="noopener"
+                    >{{ video.snippet.title }}</a
+                >
+            </div>
+            <div class="video-publish-date">
+                {{ video.snippet.publishedAt|date('m/d/Y') }}
+            </div>
+        </div>
         {% endfor %}
-    </ul>
+    </div>
     {% endif %}
 </div>

@@ -1,3 +1,15 @@
+h2 {
+    margin: 75px 0 0 0;
+    border-bottom: 1px solid #999;
+    padding-bottom: 5px;
+}
+
+.channel-count-container {
+    margin: 5px 0 25px 0;
+    color: #333;
+    text-align: right;
+}
+
 .header-container {
     text-align: center;
     margin-bottom: 20px;
@@ -8,6 +20,14 @@
     display: flex;
     flex-direction: column;
     gap: 35px;
+}
+
+.list-row-container {
+    padding: 10px;
+}
+
+.list-row-container:nth-child(odd) {
+    background: #eee;
 }
 
 .list-container-row img {
@@ -21,7 +41,37 @@
     flex-direction: column;
 }
 
-.description-container {
-    margin-top: 15px;
-    margin-bottom: 15px;
+.subscription-detail-container {
+    display: flex;
+}
+
+.title-container {
+    margin: 0 10px 10px 0;
+    font-size: 0.75em;
+}
+
+.title-container img {
+    margin-bottom: 5px;
+}
+
+.controls-container {
+    margin: 10px 0 10px 0;
+    text-align: right;
+}
+
+.controls-container button {
+}
+
+ul.pagination-list li {
+    display: inline;
+    list-style: none;
+}
+
+div.video-list {
+    display: flex;
+    text-align: center;
+}
+
+div.video-list > div {
+    flex: 1;
 }

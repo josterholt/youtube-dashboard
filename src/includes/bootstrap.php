@@ -33,7 +33,7 @@ $container = $containerBuilder->build();
 
 $logContainerBuilder = \DI\create(Monolog\Logger::class);
 $logContainerBuilder->constructor("frontend-webapp");
-$logContainerBuilder->method('pushHandler', new StreamHandler('php://stdout', Logger::DEBUG));
+$logContainerBuilder->method('pushHandler', new StreamHandler('php://stdout', Logger::ERROR));
 
 $container->set(Monolog\Logger::class, $logContainerBuilder);
 $container->set("Psr\Log\LoggerInterface", $logContainerBuilder);
