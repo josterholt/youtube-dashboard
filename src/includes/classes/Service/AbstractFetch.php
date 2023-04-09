@@ -17,7 +17,7 @@ use Redislabs\Module\ReJSON\ReJSON;
  *     return file_get_contents("https://placeholder.com/api/endpoint)
  * });
  */
-class GoogleAPIFetch extends AbstractFetch
+abstract class AbstractFetch
 {
     protected $logger = null;
     private $_redis = null;
@@ -67,46 +67,5 @@ class GoogleAPIFetch extends AbstractFetch
      * 
      * @return array array of responses
      */
-    public function get(String $key, String $path, callable $query): array|null
-    {
-        if ($this->useReadCache) {
-            $cache = $this->_redis->get($key, $path);
-            if (!empty($cache)) {
-                $this->logger->debug("<!-- Using cache for {$key} -->\n");
-                return json_decode($cache);
-            }
-        }
-
-
-        $loop = true;
-        $queryParams = ['maxResults' => 500];
-        $responses = [];
-        while ($loop) {
-            $response = $query($queryParams);
-            if (empty($response)) {
-                $loop = false;
-                $this->logger->debug("Empty response.", $queryParams);
-                continue;
-            } else {
-                $this->logger->debug("Adding response to array.");
-                $responses[] = $response->toSimpleObject(); // \Google\Collection
-            }
-
-
-            // Setup next page
-            if (empty($response->getNextPageToken()) || (isset($queryParams['pageToken']) && $response->getNextPageToken() == $queryParams['pageToken'])) {
-                $this->logger->debug("Ending loop.");
-                $loop = false;
-            } else {
-                $queryParams['pageToken'] = $response->getNextPageToken();
-                $this->logger->debug("Page token set to {$queryParams['pageToken']}");
-            }
-        }
-
-        $responsesJSONEncoded = json_encode($responses);
-        $this->logger->debug("Setting cache record.", ["key" => $key, "path" => $path, "length" => strlen($responsesJSONEncoded)]);
-        $this->_redis->set($key, $path, $responsesJSONEncoded); // Support array of requests
-
-        return $responses;
-    }
+    abstract public function get(String $key, String $path, callable $query): array|null;
 }

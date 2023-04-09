@@ -1,6 +1,10 @@
 <?php
+
 namespace josterholt\Repository;
 
+use Google\Service\YouTube;
+use josterholt\Service\CacheFetch;
+use Psr\Log\LoggerInterface;
 
 class SubscriptionRepository extends AbstractYouTubeRepository
 {
@@ -8,7 +12,7 @@ class SubscriptionRepository extends AbstractYouTubeRepository
      *  Fetch channel subscriptions of authenticated user.
      *
      * @return array
-     */ 
+     */
     public function getAllSubscriptions(): array
     {
         return $this->processResults($this->getSubscriptionsFromAPI());
@@ -35,7 +39,9 @@ class SubscriptionRepository extends AbstractYouTubeRepository
         };
 
         return $this->readAdapter->get(
-            'youtube.subscriptions', '.', $getSubscriptionsFromGoogleAPI
+            'youtube.subscriptions',
+            '.',
+            $getSubscriptionsFromGoogleAPI
         );
     }
 
@@ -63,8 +69,8 @@ class SubscriptionRepository extends AbstractYouTubeRepository
      *    }
      * ]
      */
-    protected function processResults(Array $results): array
-    {       
+    protected function processResults(array $results): array
+    {
         $subscriptions = [];
         if ($results) {
             foreach ($results as $result) {
@@ -88,7 +94,7 @@ class SubscriptionRepository extends AbstractYouTubeRepository
     {
         return null;
     }
-    
+
     public function create(object $record): bool
     {
         return false;

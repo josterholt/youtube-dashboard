@@ -1,13 +1,16 @@
 <?php
+
 namespace josterholt\Repository;
 
 class PlayListItemRepository extends AbstractYouTubeRepository
 {
     public function getByPlayListId(string $playlist_id): array
-    {       
+    {
         try {
             $playlist_items = $this->readAdapter->get(
-                "youtube.playlistItems.{$playlist_id}", '.', function ($queryParams) use ($playlist_id) {
+                "youtube.playlistItems.{$playlist_id}",
+                '.',
+                function ($queryParams) use ($playlist_id) {
                     $queryParams = [
                         'maxResults' => 25,
                         'playlistId' => $playlist_id
@@ -18,8 +21,12 @@ class PlayListItemRepository extends AbstractYouTubeRepository
                     return $items;
                 }
             );
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             $this->logger->error("Unable to access Playlist youtube.playlistItems.{$playlist_id}\n{$e->getMessage()}");
+            return [];
+        }
+
+        if ($playlist_items == null) {
             return [];
         }
 
@@ -35,7 +42,7 @@ class PlayListItemRepository extends AbstractYouTubeRepository
     {
         return null;
     }
-    
+
     public function create(object $record): bool
     {
         return false;
