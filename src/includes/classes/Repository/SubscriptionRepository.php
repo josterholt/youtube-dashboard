@@ -2,9 +2,6 @@
 
 namespace josterholt\Repository;
 
-use Google\Service\YouTube;
-use josterholt\Service\CacheFetch;
-use Psr\Log\LoggerInterface;
 
 class SubscriptionRepository extends AbstractYouTubeRepository
 {
@@ -31,16 +28,15 @@ class SubscriptionRepository extends AbstractYouTubeRepository
      */
     public function getSubscriptionsFromAPI(): array
     {
-        $getSubscriptionsFromGoogleAPI = function ($queryParams) {
+        $getSubscriptionsFromGoogleAPI = function ($queryParams = []) {
             $queryParams["mine"] = true;
             $subscriptions = $this->service->subscriptions->listSubscriptions('contentDetails,snippet', $queryParams);
             $this->logger->debug("Fetched " . count($subscriptions) . " subscriptions.");
             return $subscriptions;
         };
 
-        return $this->readAdapter->get(
-            'youtube.subscriptions',
-            '.',
+        return $this->_getValueFromStore(
+            "youtube.subscriptions",
             $getSubscriptionsFromGoogleAPI
         );
     }

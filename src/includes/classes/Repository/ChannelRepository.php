@@ -1,7 +1,6 @@
 <?php
-namespace josterholt\Repository;
 
-use josterholt\Service\GoogleService;
+namespace josterholt\Repository;
 
 class ChannelRepository extends AbstractYouTubeRepository
 {
@@ -10,12 +9,13 @@ class ChannelRepository extends AbstractYouTubeRepository
         try {
             // TODO: Is there a way to pull channels in bulk?
             // TODO: This should throw an informative exception if readAdapter is not set.
-            $channels = $this->readAdapter->get(
-                "youtube.channels.{$subscription_id}", '.', function () use ($subscription_id) {
+            $channels = $this->_getValueFromStore(
+                "youtube.channels.{$subscription_id}",
+                function () use ($subscription_id) {
                     return $this->service->channels->listChannels('snippet,contentDetails,statistics,contentOwnerDetails', ['id' => $subscription_id]);
                 }
             );
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             echo $e->getMessage();
         }
 
@@ -31,7 +31,7 @@ class ChannelRepository extends AbstractYouTubeRepository
     {
         return null;
     }
-    
+
     public function create(object $record): bool
     {
         return false;

@@ -9,7 +9,8 @@
         "psr/log": "^3.0",
         "doctrine/annotations": "^1.13",
         "phpmd/phpmd": "@stable",
-        "google/apiclient": "~2.0"
+        "google/apiclient": "~2.0",
+        "google/cloud-firestore": "^0.1.0"
     },
     "autoload": {
         "classmap": [

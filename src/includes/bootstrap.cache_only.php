@@ -1,6 +1,6 @@
 <?php
 
-use josterholt\Service\CacheFetch;
+use josterholt\Service\Storage\AbstractStore;
 use josterholt\Service\GoogleService;
 use josterholt\Repository\PlayListItemRepository;
 use josterholt\Repository\ChannelRepository;
@@ -11,6 +11,8 @@ use Monolog\Handler\StreamHandler;
 use MonoLog\Logger;
 use Google\Client;
 use Google\Service\YouTube;
+
+use josterholt\Service\Storage\RedisStore;
 
 /**
  * BEGIN AUTOLOAD SCRIPTS
@@ -58,6 +60,14 @@ $redisJSONClient = ReJSON::createWithPhpRedis($redisClient);
 $container->set(ReJSON::class, $redisJSONClient);
 // REDIS END
 
+
+// FIREBASE START
+// putenv("GOOGLE_APPLICATION_CREDENTIALS=" . __DIR__ . '/../../secrets/youtube-dashboard-325222-firebase-adminsdk-77t7j-b446e44ddf.json');
+// $firestore = new FirestoreClient();
+// $container->set(FirebaseService::class, $firestore);
+// FIREBASE END
+
+
 // GOOGLE CLIENT START
 $googleClientBuilder = \DI\create(Client::class);
 $container->set(Client::class, $googleClientBuilder);
@@ -86,11 +96,10 @@ $container->set(YouTube::class, $youTubeBuilder);
 
 
 // FETCH START
-$fetchObjectBuilder = \DI\create(CacheFetch::class);
+$fetchObjectBuilder = \DI\create(RedisStore::class);
 $fetchObjectBuilder->constructor(\DI\get(LoggerInterface::class), \DI\get(ReJSON::class));
-$fetchObjectBuilder->method('enableReadCache', \DI\get(CacheFetch::class));
-$container->set(AbstractFetch::class, $fetchObjectBuilder);
-$container->set(CacheFetch::class, $fetchObjectBuilder);
+// $fetchObjectBuilder->method('enableReadCache');
+$container->set(AbstractStore::class, $fetchObjectBuilder);
 // FETCH END
 
 // REPO INIT START
@@ -105,7 +114,7 @@ $container->set(CategoryRepository::class, $categoryRepositoryBuilder);
 $playlistItemRepositoryBuilder = \DI\create(PlayListItemRepository::class);
 $playlistItemRepositoryBuilder->constructor(
     \DI\get(LoggerInterface::class),
-    \DI\get(CacheFetch::class),
+    \DI\get(AbstractStore::class),
     \DI\get(YouTube::class)
 );
 $container->set(PlayListItemRepository::class, $playlistItemRepositoryBuilder);
@@ -114,7 +123,7 @@ $container->set(PlayListItemRepository::class, $playlistItemRepositoryBuilder);
 $channelRepositoryBuilder = \DI\create(ChannelRepository::class);
 $channelRepositoryBuilder->constructor(
     \DI\get(LoggerInterface::class),
-    \DI\get(CacheFetch::class),
+    \DI\get(AbstractStore::class),
     \DI\get(YouTube::class)
 );
 $container->set(ChannelRepository::class, $channelRepositoryBuilder);
@@ -122,7 +131,7 @@ $container->set(ChannelRepository::class, $channelRepositoryBuilder);
 $subscriptionRepositoryBuilder = \DI\create(SubscriptionRepository::class);
 $subscriptionRepositoryBuilder->constructor(
     \DI\get(LoggerInterface::class),
-    \DI\get(CacheFetch::class),
+    \DI\get(AbstractStore::class),
     \DI\get(YouTube::class)
 );
 $container->set(SubscriptionRepository::class, $subscriptionRepositoryBuilder);

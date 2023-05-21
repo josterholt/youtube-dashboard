@@ -1,5 +1,7 @@
 <?php
+
 namespace josterholt\Repository;
+
 use Redislabs\Module\ReJSON\ReJSON;
 
 
@@ -20,7 +22,7 @@ class CategoryNameRepository implements IGenericRepository
         return $this->_redis->get("categories.names");
     }
 
-    public function getById(int $id): array|object|null 
+    public function getById(int $id): array|object|null
     {
         $names = $this->_redis->get("categories.names");
         $key = array_search($id, array_column($names, 'id'));
@@ -32,16 +34,17 @@ class CategoryNameRepository implements IGenericRepository
         return $names[$key];
     }
 
-    public function create(object $record): bool 
+
+    public function create(object $record): bool
     {
         return false;
     }
-    public function update(object $record): bool 
+    public function update(object $record): bool
     {
         return false;
     }
 
-    public function delete($id): bool 
+    public function delete($id): bool
     {
         return false;
     }

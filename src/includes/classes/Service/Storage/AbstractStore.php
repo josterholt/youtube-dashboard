@@ -1,6 +1,6 @@
 <?php
 
-namespace josterholt\Service;
+namespace josterholt\Service\Storage;
 
 use Psr\Log\LoggerInterface;
 use Redislabs\Module\ReJSON\ReJSON;
@@ -12,16 +12,14 @@ use Redislabs\Module\ReJSON\ReJSON;
  * passed into the get() method. Results are cached using the key and path passed into the get() method.
  * 
  * Example usage:
- * $fetch = new GoogleAPIFetch($redisInstance);
+ * $fetch = new StoreImpl();
  * $results = $fetch->get("key", "json.path", function () {
  *     return file_get_contents("https://placeholder.com/api/endpoint)
  * });
  */
-abstract class AbstractFetch
+abstract class AbstractStore
 {
     protected $logger = null;
-    private $_redis = null;
-    protected $useReadCache = true;
 
     /**
      * Accepts a Redis client to use for caching as an argument.
@@ -29,31 +27,9 @@ abstract class AbstractFetch
      * @param LoggerInterface $logger Used for logging.
      * @param  ReJSON $redis Datastore utility.
      */
-    public function __construct(LoggerInterface $logger, ReJSON $redis)
+    public function __construct(LoggerInterface $logger)
     {
         $this->logger = $logger;
-        $this->_redis = $redis;
-    }
-
-    /**
-     * Fetch will use cache before calling external resource.
-     * 
-     * @return void
-     */
-    public function enableReadCache()
-    {
-        $this->useReadCache = true;
-    }
-
-    /**
-     * Fetch will retrieve fresh data from external resource,
-     * even if cache exists. Results of get() will be cached.
-     * 
-     * @return void
-     */
-    public function disableReadCache()
-    {
-        $this->useReadCache = false;
     }
 
     /**
@@ -62,10 +38,16 @@ abstract class AbstractFetch
      * is made against Google API.
      * 
      * @param  string   $key
-     * @param  string   $path
-     * @param  function $query
      * 
      * @return array array of responses
      */
-    abstract public function get(String $key, String $path, callable $query): array|null;
+    abstract public function get(String $key): array|null;
+
+    /**
+     * Sets value in data store.
+     * 
+     * @param string $key
+     * @param string $value
+     */
+    abstract public function set(String $key, String $value): void;
 }

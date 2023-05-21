@@ -37,9 +37,13 @@ class CategoryAPIController
         if (empty($data['category_id'])) {
             $response["status"] = "FAIL";
             $response["error"] = "Category ID is required";
+            echo json_encode($response);
+            return;
         } elseif (empty($data['item_id'])) {
             $response["status"] = "FAIL";
             $response["error"] = "Item ID is required";
+            echo json_encode($response);
+            return;
         }
 
         $category_id = (int) $data['category_id'];

@@ -7,9 +7,8 @@ class PlayListItemRepository extends AbstractYouTubeRepository
     public function getByPlayListId(string $playlist_id): array
     {
         try {
-            $playlist_items = $this->readAdapter->get(
+            $playlist_items = $this->_getValueFromStore(
                 "youtube.playlistItems.{$playlist_id}",
-                '.',
                 function ($queryParams) use ($playlist_id) {
                     $queryParams = [
                         'maxResults' => 25,

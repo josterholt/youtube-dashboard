@@ -19,3 +19,6 @@ COPY _docker/composer/config.json /root/.composer/config.json
 RUN pecl install redis
 RUN pecl install xdebug
 RUN docker-php-ext-enable redis
+
+RUN apt install zlib1g-dev
+RUN pecl install grpc

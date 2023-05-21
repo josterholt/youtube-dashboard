@@ -15,6 +15,7 @@ use josterholt\Repository\CategoryNameRepository;
  */
 class CategoryNameRepositoryTest extends TestCase
 {
+
     /**
      * @covers CategoryNameRepository
      */
@@ -41,9 +42,8 @@ class CategoryNameRepositoryTest extends TestCase
 
         $categoryNameRepo = new CategoryNameRepository($reJSONClient);
         $names = $categoryNameRepo->getAll();
-        
-        $this->assertEquals($categoryNames, $names);
 
+        $this->assertEquals($categoryNames, $names);
     }
 
     /**
@@ -72,7 +72,7 @@ class CategoryNameRepositoryTest extends TestCase
 
         $categoryNameRepo = new CategoryNameRepository($reJSONClient);
         $name = $categoryNameRepo->getById($categoryNames[1]["id"]);
-        
+
         $this->assertNotEmpty($name);
         $this->assertIsArray($name);
         $this->assertEquals($categoryNames[1]["id"], $name["id"]);
