@@ -3,7 +3,7 @@
 namespace josterholt\Service;
 
 use josterholt\Service\Storage\AbstractStore;
-
+use Psr\Log\LoggerInterface;
 
 class YouTube extends \Google\Service\YouTube
 {
@@ -18,16 +18,22 @@ class YouTube extends \Google\Service\YouTube
     protected bool $useCache = true;
 
     /**
+     * Logger
+     */
+    protected LoggerInterface $logger;
+
+    /**
      * Constructs the internal representation of the YouTube service.
      *
      * @param Client|array $clientOrConfig The client used to deliver requests, or a
      *                                     config array to pass to a new Client instance.
      * @param string $rootUrl The root URL used for requests to the service.
      */
-    public function __construct($clientOrConfig = [], $rootUrl = null, AbstractStore $store = null)
+    public function __construct(LoggerInterface $logger, $clientOrConfig = [], $rootUrl = null, AbstractStore $store = null)
     {
         parent::__construct($clientOrConfig, $rootUrl);
 
+        $this->logger = $logger;
         $this->store = $store;
     }
 
@@ -65,7 +71,7 @@ class YouTube extends \Google\Service\YouTube
         if ($this->useCache && !empty($this->store)) {
             $cache = $this->store->get($key);
             if (!empty($cache)) {
-                // $this->logger->debug("<!-- Using cache for {$key} -->\n");
+                $this->logger->debug("<!-- Using cache for {$key} -->\n");
                 return $cache;
             }
         }
@@ -74,7 +80,7 @@ class YouTube extends \Google\Service\YouTube
 
         if (!empty($this->store)) {
             $responsesJSONEncoded = json_encode($responses);
-            // $this->logger->debug("Setting cache record.", ["key" => $key, "path" => ".", "length" => strlen($responsesJSONEncoded)]);
+            $this->logger->debug("Setting cache record.", ["key" => $key, "path" => ".", "length" => strlen($responsesJSONEncoded)]);
             $this->store->set($key, $responsesJSONEncoded); // Support array of requests
         }
 

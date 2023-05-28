@@ -87,19 +87,19 @@ $googleService = $container->get(GoogleService::class);
 $googleService->initialize($googleClientCode);
 // GOOGLE SERVICE END
 
-// YouTube API START
-$youTubeBuilder = \DI\create(YouTube::class)
-    ->constructor($googleService->getClient(), null, \DI\get(AbstractStore::class));
-$container->set(YouTube::class, $youTubeBuilder);
-// YouTube API END
-
-
 // FETCH START
 $fetchObjectBuilder = \DI\create(RedisStore::class);
 $fetchObjectBuilder->constructor(\DI\get(LoggerInterface::class), \DI\get(ReJSON::class));
 // $fetchObjectBuilder->method('enableReadCache');
 $container->set(AbstractStore::class, $fetchObjectBuilder);
 // FETCH END
+
+// YouTube API START
+$youTubeBuilder = \DI\create(YouTube::class)
+    ->constructor(\DI\get(LoggerInterface::class), $googleService->getClient(), null, \DI\get(AbstractStore::class));
+$container->set(YouTube::class, $youTubeBuilder);
+// YouTube API END
+
 
 // REPO INIT START
 $categoryRepositoryBuilder = \DI\create(CategoryRepository::class);

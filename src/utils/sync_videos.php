@@ -11,5 +11,10 @@ if (!$googleService->isAuthenticated) {
     exit(0);
 }
 
+$channel_id = null;
+if ($argc > 1) {
+    $channel_id = $argv[1];
+}
+
 $syncController = $container->make(SyncVideosController::class);
-$syncController->sync();
+$syncController->sync($channel_id);
