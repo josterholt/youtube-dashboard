@@ -15,12 +15,13 @@ class RedisStoreTest extends TestCase
         $logger = $this->getMockBuilder(Psr\Log\LoggerInterface::class)
             ->getMockForAbstractClass();
         $redisInstance = $this->createStub('\Redislabs\Module\ReJSON\ReJSON');
-        $redisInstance->method("get")->willReturn("{ \"test_key\": \"test_value\" }");
+        $redisInstance->method("get")->willReturn("[ \"test_value\" ]");
 
 
         $store = new RedisStore($logger, $redisInstance);
         $stored_value = $store->get("test_key");
-        $this->assertEquals(["test_key" => "test_value"], $stored_value);
+        $this->assertIsArray($stored_value);
+        $this->assertEquals($stored_value[0], "test_value");
     }
 
     /**

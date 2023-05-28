@@ -43,7 +43,8 @@ class RedisStore extends AbstractStore
         $cache = $this->_redis->get($key, ".");
         if (!empty($cache)) {
             $this->logger->debug("<!-- Using cache for {$key} -->\n");
-            return json_decode($cache, true);
+            $return_val = json_decode($cache, false);
+            return $return_val;
         }
         return null;
     }

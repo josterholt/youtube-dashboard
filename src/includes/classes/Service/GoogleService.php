@@ -8,6 +8,7 @@ namespace josterholt\Service;
 
 use \Google\Service\YouTube;
 use \Google\Client;
+use josterholt\Service\Storage\AbstractStore;
 use Psr\Log\LoggerInterface;
 
 /**

@@ -10,8 +10,7 @@ use Psr\Log\LoggerInterface;
 use Monolog\Handler\StreamHandler;
 use MonoLog\Logger;
 use Google\Client;
-use Google\Service\YouTube;
-
+use josterholt\Service\YouTube;
 use josterholt\Service\Storage\RedisStore;
 
 /**
@@ -90,7 +89,7 @@ $googleService->initialize($googleClientCode);
 
 // YouTube API START
 $youTubeBuilder = \DI\create(YouTube::class)
-    ->constructor($googleService->getClient());
+    ->constructor($googleService->getClient(), null, \DI\get(AbstractStore::class));
 $container->set(YouTube::class, $youTubeBuilder);
 // YouTube API END
 
@@ -114,7 +113,6 @@ $container->set(CategoryRepository::class, $categoryRepositoryBuilder);
 $playlistItemRepositoryBuilder = \DI\create(PlayListItemRepository::class);
 $playlistItemRepositoryBuilder->constructor(
     \DI\get(LoggerInterface::class),
-    \DI\get(AbstractStore::class),
     \DI\get(YouTube::class)
 );
 $container->set(PlayListItemRepository::class, $playlistItemRepositoryBuilder);
@@ -123,16 +121,11 @@ $container->set(PlayListItemRepository::class, $playlistItemRepositoryBuilder);
 $channelRepositoryBuilder = \DI\create(ChannelRepository::class);
 $channelRepositoryBuilder->constructor(
     \DI\get(LoggerInterface::class),
-    \DI\get(AbstractStore::class),
     \DI\get(YouTube::class)
 );
 $container->set(ChannelRepository::class, $channelRepositoryBuilder);
 
 $subscriptionRepositoryBuilder = \DI\create(SubscriptionRepository::class);
-$subscriptionRepositoryBuilder->constructor(
-    \DI\get(LoggerInterface::class),
-    \DI\get(AbstractStore::class),
-    \DI\get(YouTube::class)
-);
+$subscriptionRepositoryBuilder->constructor(\DI\get(LoggerInterface::class), \DI\get(YouTube::class));
 $container->set(SubscriptionRepository::class, $subscriptionRepositoryBuilder);
 // REPO INIT END

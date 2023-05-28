@@ -41,7 +41,7 @@ abstract class AbstractStore
      * 
      * @return array array of responses
      */
-    abstract public function get(String $key): array|null;
+    abstract public function get(String $key): mixed;
 
     /**
      * Sets value in data store.

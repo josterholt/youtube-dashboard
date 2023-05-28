@@ -35,7 +35,7 @@ class SubscriptionRepository extends AbstractYouTubeRepository
             return $subscriptions;
         };
 
-        return $this->_getValueFromStore(
+        return $this->service->queryFromCache(
             "youtube.subscriptions",
             $getSubscriptionsFromGoogleAPI
         );

@@ -133,22 +133,19 @@ class YouTubeDashboardController
 
             $upload_playlist_id = $channels[0]->items[0]->contentDetails
                 ->relatedPlaylists->uploads;
-            $play_list_items = $this->_playListItemRepository
-                ->getByPlaylistId($upload_playlist_id);
+            $play_list_items = $this->_playListItemRepository->getByPlaylistId($upload_playlist_id);
+
             if (!empty($play_list_items)) {
                 foreach ($play_list_items[0]->items as $play_list_item) {
                     if (!isset($lastActivityLookup[$subscription->snippet->resourceId->channelId]) || strtotime($play_list_item->snippet->publishedAt) > $lastActivityLookup[$subscription->snippet->resourceId->channelId]) {
-                        $lastActivityLookup[$subscription->snippet->resourceId
-                            ->channelId] = strtotime(
-                            $play_list_item
-                                ->snippet->publishedAt
+                        $lastActivityLookup[$subscription->snippet->resourceId->channelId] = strtotime(
+                            $play_list_item->snippet->publishedAt
                         );
                     }
                 }
             }
 
-            $play_list_items_lookup[$subscription->snippet->resourceId
-                ->channelId] = $play_list_items;
+            $play_list_items_lookup[$subscription->snippet->resourceId->channelId] = $play_list_items;
         }
         return $play_list_items_lookup;
     }
@@ -161,8 +158,6 @@ class YouTubeDashboardController
         $play_list_items_lookup = $this->getPlayListItemsLookup();
         $channels_lookup = $this->getChannelsLookup();
         $lastActivityLookup = $this->getLastActivityLookup();
-
-
 
         $selected_category = "";
         if (!empty($_GET['category']) && $_GET['category'] != 'NO_FILTER') {

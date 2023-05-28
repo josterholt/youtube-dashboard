@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @description Updates REDIS database with videos from YouTube API.
  * @package     josterholt\Controller
@@ -7,6 +8,7 @@
  * @link        N/A
  * @license     MIT
  */
+
 namespace josterholt\Controller;
 
 use \josterholt\Repository\SubscriptionRepository;
@@ -46,24 +48,21 @@ class SyncVideosController
     public function sync()
     {
         $this->logger->debug("Starting video sync.");
-        $this->_subscriptionRepository->disableReadCache();
-        $this->_channelRepository->disableReadCache();
-        $this->_playListItemRepository->disableReadCache();
-        
-        
+
+
         $subscriptions = $this->_subscriptionRepository->getAllSubscriptions();
 
         foreach ($subscriptions as  $subscription) {
             $this->logger->debug("Fetching channel by subscription ID: {$subscription->snippet->resourceId->channelId}");
             $channels = $this->_channelRepository->getBySubscriptionId($subscription->snippet->resourceId->channelId);
 
-            if(empty($channels)) {
+            if (empty($channels)) {
                 continue;
             }
 
             try {
                 $upload_playlist_id = $channels[0]->items[0]->contentDetails->relatedPlaylists->uploads;
-                
+
                 $this->logger->debug("Upload Playlist ID: {$upload_playlist_id}\n");
                 $this->_playListItemRepository->getByPlayListId($upload_playlist_id);
             } catch (\Exception $e) {

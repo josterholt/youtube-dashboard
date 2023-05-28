@@ -7,7 +7,7 @@ class PlayListItemRepository extends AbstractYouTubeRepository
     public function getByPlayListId(string $playlist_id): array
     {
         try {
-            $playlist_items = $this->_getValueFromStore(
+            $playlist_items = $this->service->queryFromCache(
                 "youtube.playlistItems.{$playlist_id}",
                 function ($queryParams) use ($playlist_id) {
                     $queryParams = [
