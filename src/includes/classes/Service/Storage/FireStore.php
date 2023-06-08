@@ -40,6 +40,18 @@ class FireStore extends AbstractStore
      */
     public function get(String $key): array|null
     {
-        return null;
+        return [$this->_firestore->collection("cache")->document($key)->serialized_value()];
+    }
+
+    /**
+     * Sets value in data store.
+     * 
+     * @param string $key
+     * @param string $value
+     */
+    public function set(String $key, String $value): void
+    {
+        $docRef = $this->_firestore->collection("cache")->document($key);
+        $docRef->set(["serialized_value" => $value]);
     }
 }

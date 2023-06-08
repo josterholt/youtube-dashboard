@@ -6,9 +6,10 @@ use josterholt\Repository\ChannelRepository;
 use josterholt\Repository\SubscriptionRepository;
 use Redislabs\Module\ReJSON\ReJSON;
 use Psr\Log\LoggerInterface;
+use Google\Client;
+use Google\Cloud\Firestore\FirestoreClient;
 use Monolog\Handler\StreamHandler;
 use MonoLog\Logger;
-use Google\Client;
 use josterholt\Service\YouTube;
 
 use josterholt\Service\GoogleService;
@@ -41,6 +42,7 @@ $logContainerBuilder->method('pushHandler', new StreamHandler('php://stdout', Lo
 $container->set(Monolog\Logger::class, $logContainerBuilder);
 $container->set("Psr\Log\LoggerInterface", $logContainerBuilder);
 
+
 // REDIS START
 $redisClient = $container->get(\Redis::class);
 $redisURL = $_ENV['REDIS_URL'];
@@ -60,6 +62,20 @@ register_shutdown_function(
 $redisJSONClient = ReJSON::createWithPhpRedis($redisClient);
 $container->set(ReJSON::class, $redisJSONClient);
 // REDIS END
+
+
+// FIRESTORE START
+$firestoreClientBuilder = \DI\Create(FirestoreClient::class);
+$firestoreClientBuilder->constructor([
+    'keyFile' => json_decode(file_get_contents('../secrets/youtube-dashboard-325222-firebase-adminsdk-77t7j-b446e44ddf.json'), true)
+]);
+$container->set(FirestoreClient::class, $firestoreClientBuilder);
+
+$firestoreInstanceBuilder = \DI\Create(Firestore::class);
+$firestoreInstanceBuilder->constructor(\DI\get(LoggerInterface::class), \DI\get(FirestoreClient::class));
+$container->set(Firestore::class, $firestoreInstanceBuilder);
+$container->set(AbstractStore::class, $firestoreInstanceBuilder);
+// FIRESTORE END
 
 // GOOGLE CLIENT START
 $googleClientBuilder = \DI\create(Client::class);
@@ -91,9 +107,14 @@ $container->set(AbstractStore::class, $fetchObjectBuilder);
 $youTubeBuilder = \DI\create(YouTube::class)
     ->constructor(\DI\get(LoggerInterface::class), $googleService->getClient(), null, \DI\get(AbstractStore::class));
 $container->set(YouTube::class, $youTubeBuilder);
-$youTube = $container->get(YouTube::class);
-$youTube->disableReadCache();
 // YouTube API END
+
+// YouTube API ReadOnly Start
+if (!defined("APP_CACHE_ONLY") || !APP_CACHE_ONLY) {
+    $youTube = $container->get(YouTube::class);
+    $youTube->disableReadCache();
+}
+// YouTube API ReadOnly End
 
 // REPO INIT START
 $categoryRepositoryBuilder = \DI\create(CategoryRepository::class);
@@ -102,6 +123,7 @@ $categoryRepositoryBuilder->constructor(
     \DI\get(ReJSON::class)
 );
 $container->set(CategoryRepository::class, $categoryRepositoryBuilder);
+
 
 $playListItemRepositoryBuilder = \DI\create(PlayListItemRepository::class);
 $playListItemRepositoryBuilder->constructor(
@@ -119,9 +141,6 @@ $channelRepositoryBuilder->constructor(
 $container->set(ChannelRepository::class, $channelRepositoryBuilder);
 
 $subscriptionRepositoryBuilder = \DI\create(SubscriptionRepository::class);
-$subscriptionRepositoryBuilder->constructor(
-    \DI\get(LoggerInterface::class),
-    \DI\get(YouTube::class)
-);
+$subscriptionRepositoryBuilder->constructor(\DI\get(LoggerInterface::class), \DI\get(YouTube::class));
 $container->set(SubscriptionRepository::class, $subscriptionRepositoryBuilder);
 // REPO INIT END

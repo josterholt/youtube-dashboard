@@ -10,7 +10,9 @@
         "doctrine/annotations": "^1.13",
         "phpmd/phpmd": "@stable",
         "google/apiclient": "~2.0",
-        "google/cloud-firestore": "^0.1.0"
+        "kreait/firebase-php": "^7.3",
+        "grpc/grpc": "^1.38",
+        "google/cloud-firestore": "^1.34"
     },
     "autoload": {
         "classmap": [
