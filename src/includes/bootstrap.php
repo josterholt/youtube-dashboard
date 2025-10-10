@@ -63,11 +63,10 @@ $redisJSONClient = ReJSON::createWithPhpRedis($redisClient);
 $container->set(ReJSON::class, $redisJSONClient);
 // REDIS END
 
-
 // FIRESTORE START
 $firestoreClientBuilder = \DI\Create(FirestoreClient::class);
 $firestoreClientBuilder->constructor([
-    'keyFile' => json_decode(file_get_contents('../secrets/youtube-dashboard-325222-firebase-adminsdk-77t7j-b446e44ddf.json'), true)
+    'keyFile' => json_decode(file_get_contents(BASE_APPLICATION_DIR . "secrets/youtube-dashboard-325222-firebase-adminsdk-77t7j-b446e44ddf.json"), true)
 ]);
 $container->set(FirestoreClient::class, $firestoreClientBuilder);
 
@@ -84,6 +83,7 @@ $container->set(Client::class, $googleClientBuilder);
 
 // GOOGLE SERVICE START
 $googleServiceBuilder = \DI\Create(GoogleService::class);
+
 $googleServiceBuilder->constructor(
     \DI\get(Client::class),
     $_ENV['CLIENT_SECRET_FILE_PATH'],

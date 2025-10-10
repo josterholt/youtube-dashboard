@@ -9,6 +9,7 @@ use josterholt\Controller\YouTubeDashboardController;
  * with a one liner for each initialization.
  */
 define("APP_CACHE_ONLY", true);
+define("BASE_APPLICATION_DIR", "../");
 
 require_once "includes/bootstrap.php";
 ini_set('memory_limit', '2048M');

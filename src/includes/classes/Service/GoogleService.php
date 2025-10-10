@@ -91,6 +91,19 @@ class GoogleService
     public function initialize($code = null)
     {
         $this->_initGoogleClient();
+
+        if (!$this->checkClientAccess($code)) {
+            $this->isAuthenticated = false;
+        } else {
+            $this->isAuthenticated = true;
+        }
+
+        // Automatically refresh token if it has expired
+        // if (file_exists($this->_accessTokenPath)) {
+        //     echo "Token removed\n";
+        //     unlink($this->_accessTokenPath);
+        // }
+
         if (!$this->checkClientAccess($code)) {
             $this->isAuthenticated = false;
         } else {
@@ -113,9 +126,10 @@ class GoogleService
         );
 
         // https://cloud.google.com/iam/docs/creating-managing-service-account-keys
-        $this->logger->debug("Loading config from: " . $this->_accessTokenPath);
+        $this->logger->debug("Loading config from: " . $this->_clientSecretPath);
         $this->client->setAuthConfig($this->_clientSecretPath);
-        $this->client->setAccessType('offline');
+        // $this->client->setAccessType('offline');
+        $this->client->setRedirectUri(("http://localhost:8088/authorized"));
     }
 
     /**
@@ -132,7 +146,7 @@ class GoogleService
      * Loads access code from URL or file. Prompts for new access code if not found or expired.
      * TODO: This needs to be broken apart into smaller pieces. Redirect needs to be separated.
      * 
-     * Returns true on successful token retreival and false on failure.
+     * Returns true on successful token retrieval and false on failure.
      * 
      * @return bool
      */
@@ -182,6 +196,15 @@ class GoogleService
     public function getAuthorizationPageURL(): string
     {
         return $this->client->createAuthUrl();
+    }
+
+    /**
+     * Returns authentication error
+     */
+    public function getAuthenticationError(): string
+    {
+        // return $this->client->getAccessTokenResponse()['error'];
+        echo "Authentication error\n";
     }
 
     /**

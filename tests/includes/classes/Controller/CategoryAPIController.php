@@ -1,7 +1,7 @@
 <?php
 use PHPUnit\Framework\TestCase;
 
-class CategoryAPIController extends TestCase
+class CategoryAPIControllerTest extends TestCase
 {
     /**
      * @covers CategoryAPIController
