@@ -50,7 +50,7 @@ class RedisStore extends AbstractStore
         return null;
     }
 
-    public function set(String $collection, String $key, String $value): void
+    public function set(String $collection, String $key, array|String $value): void
     {
         $this->_redis->set("{$collection}.{$key}", ".", $value);
     }

@@ -70,10 +70,20 @@ class SubscriptionRepository extends AbstractYouTubeRepository
         $subscriptions = [];
         if ($results) {
             foreach ($results as $result) {
-                if ($result['items']) {
-                    foreach ($result['items'] as $item) {
-                        $subscriptions[] = $item;
+                try {
+                    // $result = is_array($result) ? $result[0] : $result;
+                    if ($result->items) {
+                        foreach ($result->items as $item) {
+                            $subscriptions[] = $item;
+                        }
                     }
+                } catch (\Exception $e) {
+                    $this->logger->error("Error processing subscription result: " . $e->getMessage());
+                    echo "<pre>";
+                    echo "testing";
+                    print_r(get_object_vars($result));
+                    echo "</pre>";
+                    continue;
                 }
             }
         }

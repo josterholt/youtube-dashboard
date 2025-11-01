@@ -100,7 +100,7 @@ $googleService->initialize($googleClientCode);
 // FETCH START
 $fetchObjectBuilder = \DI\create(RedisStore::class);
 $fetchObjectBuilder->constructor(\DI\get(LoggerInterface::class), \DI\get(ReJSON::class));
-$container->set(AbstractStore::class, $fetchObjectBuilder);
+// $container->set(AbstractStore::class, $fetchObjectBuilder);
 // FETCH END
 
 // YouTube API START

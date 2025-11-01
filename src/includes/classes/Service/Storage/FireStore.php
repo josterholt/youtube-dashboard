@@ -46,7 +46,7 @@ class FireStore extends AbstractStore
         if(empty($snapshot_data)) {
             return null;
         }
-        return [(object) $snapshot_data['serialized_value']];
+        return [json_decode(json_encode($snapshot_data['serialized_value'][0]), FALSE)];
     }
 
     /**
