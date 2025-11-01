@@ -14,9 +14,9 @@ use Google\Cloud\Firestore\FirestoreClient;
  */
 class FireStore extends AbstractStore
 {
-    protected $logger = null;
-    protected $useReadCache = true;
-    protected $_firestore = null;
+    protected ?LoggerInterface $logger = null;
+    protected bool $useReadCache = true;
+    protected ?FirestoreClient $_firestore = null;
 
     /**
      * Accepts a Redis client to use for caching as an argument.
@@ -38,9 +38,15 @@ class FireStore extends AbstractStore
      * 
      * @return array array of responses
      */
-    public function get(String $key): array|null
+    public function get(String $collection, String $key): array|null
     {
-        return [$this->_firestore->collection("cache")->document($key)->serialized_value()];
+        $doc = $this->_firestore->collection($collection)->document($key);
+        $snapshot_data = $doc->snapshot()->data();
+
+        if(empty($snapshot_data)) {
+            return null;
+        }
+        return [(object) $snapshot_data['serialized_value']];
     }
 
     /**
@@ -49,9 +55,14 @@ class FireStore extends AbstractStore
      * @param string $key
      * @param string $value
      */
-    public function set(String $key, String $value): void
+    public function set(String $collection, String $key, String|array $value): void
     {
-        $docRef = $this->_firestore->collection("cache")->document($key);
-        $docRef->set(["serialized_value" => $value]);
+        $docRef = $this->_firestore->collection($collection)->document($key);
+        $raw_document = [
+            "serialized_value" => $value,
+            "updated" => time(),
+            "updated_readable" => date("Y-m-d H:i:s")
+        ];
+        $docRef->set($raw_document);
     }
 }

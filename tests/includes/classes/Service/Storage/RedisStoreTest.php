@@ -19,7 +19,7 @@ class RedisStoreTest extends TestCase
 
 
         $store = new RedisStore($logger, $redisInstance);
-        $stored_value = $store->get("test_key");
+        $stored_value = $store->get("cache", "test_key");
         $this->assertIsArray($stored_value);
         $this->assertEquals($stored_value[0], "test_value");
     }

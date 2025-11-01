@@ -9,7 +9,7 @@ services:
             - .:/var/www/html
         entrypoint: /var/www/html/run_dev_server.sh
     redis:
-        image: redislabs/rejson
+        image: redis/redis-stack:latest
         volumes:
             - ./_redis_data:/data
         ports:

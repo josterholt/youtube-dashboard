@@ -68,20 +68,22 @@ class YouTube extends \Google\Service\YouTube
      */
     public function queryFromCache(String $key, callable $callback)
     {
+        $collection_name = "cache_test";
         if ($this->useCache && !empty($this->store)) {
-            $cache = $this->store->get($key);
+            $cache = $this->store->get($collection_name, $key);
             if (!empty($cache)) {
-                $this->logger->debug("<!-- Using cache for {$key} -->\n");
+                $this->logger->debug("<!-- Using cache for {$collection_name}.{$key} -->\n");
                 return $cache;
             }
         }
 
+        $this->logger->debug("<!-- Fetching records from Google Service for {$collection_name}.{$key} -->\n");
         $responses = $this->getAllGoogleServiceResponses($callback);
 
         if (!empty($this->store)) {
             $responsesJSONEncoded = json_encode($responses);
-            $this->logger->debug("Setting cache record.", ["key" => $key, "path" => ".", "length" => strlen($responsesJSONEncoded)]);
-            $this->store->set($key, $responsesJSONEncoded); // Support array of requests
+            $this->logger->debug("Setting cache record.", ["collection" => $collection_name, "key" => $key, "path" => ".", "length" => strlen($responsesJSONEncoded)]);
+            $this->store->set($collection_name, $key, $responses); // Support array of requests
         }
 
         return $responses;

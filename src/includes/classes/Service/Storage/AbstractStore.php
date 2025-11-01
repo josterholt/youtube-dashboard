@@ -19,7 +19,7 @@ use Redislabs\Module\ReJSON\ReJSON;
  */
 abstract class AbstractStore
 {
-    protected $logger = null;
+    protected ?LoggerInterface $logger = null;
 
     /**
      * Accepts a Redis client to use for caching as an argument.
@@ -37,17 +37,18 @@ abstract class AbstractStore
      * if it exists and cache is enabled, otherwise a new call
      * is made against Google API.
      * 
-     * @param  string   $key
-     * 
+     * @param string $collection
+     * @param  string $key
      * @return array array of responses
      */
-    abstract public function get(String $key): mixed;
+    abstract public function get(String $collection, String $key): mixed;
 
     /**
      * Sets value in data store.
      * 
+     * @param string $collection
      * @param string $key
      * @param string $value
      */
-    abstract public function set(String $key, String $value): void;
+    abstract public function set(String $collection, String $key, String|array $value): void;
 }

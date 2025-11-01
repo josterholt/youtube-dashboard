@@ -2,11 +2,17 @@
 
 namespace josterholt\Controller;
 
+use josterholt\Service\Storage\FireStore;
 use Redislabs\Module\ReJSON\ReJSON;
 use Psr\Log\LoggerInterface;
 
 class CategoryAPIController
 {
+    /**
+     * Storage for categories
+     */
+    private FireStore | null $store;
+
     private $_redis = null;
     private $_logger = null;
 
@@ -89,6 +95,7 @@ class CategoryAPIController
             $response["status"] = "FAIL";
             $response["error"] = "Unable to add item to categories";
         }
+        $this->store->set("category_items", $item_id, $category_id);
         /**
          * END ITEM TO LIST
          */

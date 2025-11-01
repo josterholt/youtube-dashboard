@@ -70,8 +70,8 @@ class SubscriptionRepository extends AbstractYouTubeRepository
         $subscriptions = [];
         if ($results) {
             foreach ($results as $result) {
-                if ($result->items) {
-                    foreach ($result->items as $item) {
+                if ($result['items']) {
+                    foreach ($result['items'] as $item) {
                         $subscriptions[] = $item;
                     }
                 }

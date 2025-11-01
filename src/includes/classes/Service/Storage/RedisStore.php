@@ -14,7 +14,7 @@ use Redislabs\Module\ReJSON\ReJSON;
  */
 class RedisStore extends AbstractStore
 {
-    protected $logger = null;
+    protected ?LoggerInterface $logger = null;
     private $_redis = null;
 
     /**
@@ -38,19 +38,20 @@ class RedisStore extends AbstractStore
      * 
      * @return array array of responses
      */
-    public function get(String $key): array|null
+    public function get(String $collection, String $key): array|null
     {
-        $cache = $this->_redis->get($key, ".");
+        $cache_key = "{$collection}.{$key}";
+        $cache = $this->_redis->get($cache_key, ".");
         if (!empty($cache)) {
-            $this->logger->debug("<!-- Using cache for {$key} -->\n");
+            $this->logger->debug("<!-- Using cache for {$cache_key} -->\n");
             $return_val = json_decode($cache, false);
             return $return_val;
         }
         return null;
     }
 
-    public function set(String $key, String $value): void
+    public function set(String $collection, String $key, String $value): void
     {
-        $this->_redis->set($key, ".", $value);
+        $this->_redis->set("{$collection}.{$key}", ".", $value);
     }
 }
