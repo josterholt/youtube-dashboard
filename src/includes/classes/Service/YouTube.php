@@ -101,7 +101,7 @@ class YouTube extends \Google\Service\YouTube
     public function getAllGoogleServiceResponses($query): array|null
     {
         $loop = true;
-        $queryParams = ['maxResults' => 500];
+        $queryParams = ['maxResults' => 50];
         $responses = [];
         while ($loop) {
             $response = $query($queryParams);

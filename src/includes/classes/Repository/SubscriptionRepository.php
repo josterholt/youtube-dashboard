@@ -79,10 +79,6 @@ class SubscriptionRepository extends AbstractYouTubeRepository
                     }
                 } catch (\Exception $e) {
                     $this->logger->error("Error processing subscription result: " . $e->getMessage());
-                    echo "<pre>";
-                    echo "testing";
-                    print_r(get_object_vars($result));
-                    echo "</pre>";
                     continue;
                 }
             }

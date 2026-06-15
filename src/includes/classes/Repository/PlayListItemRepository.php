@@ -10,10 +10,7 @@ class PlayListItemRepository extends AbstractYouTubeRepository
             $playlist_items = $this->service->queryFromCache(
                 "youtube.playlistItems.{$playlist_id}",
                 function ($queryParams) use ($playlist_id) {
-                    $queryParams = [
-                        'maxResults' => 25,
-                        'playlistId' => $playlist_id
-                    ];
+                    $queryParams['playlistId'] = $playlist_id;
                     $this->logger->debug("Fetching items for playlist ID: {$playlist_id}");
                     $items = $this->service->playlistItems->listPlaylistItems('snippet,contentDetails', $queryParams);
                     $this->logger->debug(count($items) . " playlist items found.");

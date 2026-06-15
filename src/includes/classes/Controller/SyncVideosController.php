@@ -76,7 +76,7 @@ class SyncVideosController
                 $this->logger->debug("Upload Playlist ID: {$upload_playlist_id}\n");
                 $this->_playListItemRepository->getByPlayListId($upload_playlist_id);
             } catch (\Exception $e) {
-                $this->logger->error("Error: {$e->getMessage()}\n $e->getTraceAsString()");
+                $this->logger->error("Error: {$e->getMessage()}\n {$e->getTraceAsString()}");
             }
         }
     }
