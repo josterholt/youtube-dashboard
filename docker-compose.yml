@@ -1,12 +1,14 @@
 services:
     web:
         build: .
+        user: web-dev
         working_dir: /var/www/html
         ports:
             - "8088:8088"
-            - "9003:9003"
+            # - "9003:9003"
         volumes:
             - .:/var/www/html
+            - vendor:/var/www/html/vendor
         entrypoint: /var/www/html/run_dev_server.sh
     redis:
         image: redis/redis-stack:latest
@@ -14,3 +16,6 @@ services:
             - ./_redis_data:/data
         ports:
             - "6379:6379"
+
+volumes:
+    vendor:

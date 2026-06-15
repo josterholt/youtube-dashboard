@@ -14,7 +14,8 @@ RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" \
 && mv composer.phar /usr/local/bin/composer
 
 # Install required PHP extensions
-RUN pecl install redis xdebug && docker-php-ext-enable redis
+RUN pecl install redis xdebug && docker-php-ext-enable redis xdebug
+COPY _docker/php/php.development.ini /usr/local/etc/php/php.development.ini
 
 # grpc dependencies and installation
 RUN apt install zlib1g-dev
@@ -23,8 +24,11 @@ ADD --chmod=0755 https://github.com/mlocati/docker-php-extension-installer/relea
 RUN install-php-extensions grpc
 
 # Create user web service will run as
-RUN useradd -ms /bin/bash web-dev
-RUN chown -R web-dev:web-dev /var/www/html
+RUN useradd -ms /bin/bash web-dev \
+ && mkdir -p /var/www/html/vendor \
+ && chown -R web-dev:web-dev /var/www/html
+
+# RUNNING AS web-dev
 USER web-dev
 WORKDIR /var/www/html
 
@@ -32,4 +36,3 @@ WORKDIR /var/www/html
 RUN composer config --global use-parent-dir true \
 && export PATH=/var/www/html/vendor/bin:$PATH
 COPY _docker/composer/config.json /home/web-dev/.composer/config.json
-
