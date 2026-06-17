@@ -60,9 +60,24 @@ class YouTube extends \Google\Service\YouTube
     {
         return $this->useCache;
     }
+    public function getCached(string $key): mixed
+    {
+        if (!$this->useCache || empty($this->store)) {
+            return null;
+        }
+        return $this->store->get("cache_test", $key) ?: null;
+    }
+
+    public function setCached(string $key, mixed $value): void
+    {
+        if (!empty($this->store)) {
+            $this->store->set("cache_test", $key, $value);
+        }
+    }
+
     /**
      * Retrieves requests from cache if applicable
-     * 
+     *
      * @param string $key Key for cache
      * @param callable $callback Callback to get requests
      */

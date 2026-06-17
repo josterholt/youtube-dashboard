@@ -27,6 +27,7 @@ build/coverage
 # VSCode Extension Files
 .dccache
 .vscode
+.devcontainer
 
 # Project config
 secrets
@@ -35,3 +36,6 @@ secrets
 _redis_data
 # Snyk Security Extension - AI Rules (auto-generated)
 .github/instructions/snyk_rules.instructions.md
+
+# Other
+backups

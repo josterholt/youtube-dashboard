@@ -53,26 +53,25 @@ class SyncVideosController
             $this->logger->debug("Starting video sync for {$channel_id}.");
         }
 
-
-
         $subscriptions = $this->_subscriptionRepository->getAllSubscriptions();
 
-        foreach ($subscriptions as  $subscription) {
-            // Skip sync if a syncing a specific ID and current channelId doesn't match
-            if (!empty($channel_id) && $channel_id != $subscription->snippet->resourceId->channelId) {
-                continue;
+        $subscription_channel_ids = [];
+        foreach ($subscriptions as $subscription) {
+            $sub_channel_id = $subscription->snippet->resourceId->channelId;
+            if (empty($channel_id) || $channel_id === $sub_channel_id) {
+                $subscription_channel_ids[] = $sub_channel_id;
             }
+        }
 
-            $this->logger->debug("Fetching channel by subscription ID: {$subscription->snippet->resourceId->channelId}");
-            $channels = $this->_channelRepository->getBySubscriptionId($subscription->snippet->resourceId->channelId);
+        if (empty($subscription_channel_ids)) {
+            return;
+        }
 
-            if (empty($channels)) {
-                continue;
-            }
+        $channels_by_id = $this->_channelRepository->getBySubscriptionIds($subscription_channel_ids);
 
+        foreach ($channels_by_id as $channel) {
             try {
-                $upload_playlist_id = $channels[0]->items[0]->contentDetails->relatedPlaylists->uploads;
-
+                $upload_playlist_id = $channel->contentDetails->relatedPlaylists->uploads;
                 $this->logger->debug("Upload Playlist ID: {$upload_playlist_id}\n");
                 $this->_playListItemRepository->getByPlayListId($upload_playlist_id);
             } catch (\Exception $e) {
