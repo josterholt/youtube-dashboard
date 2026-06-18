@@ -351,13 +351,15 @@ class GoogleService
      */
     private function _waitForCallbackCode(int $port, int $timeoutSeconds = 120): ?string
     {
-        $server = stream_socket_server("tcp://127.0.0.1:{$port}", $errno, $errstr);
+        $server = stream_socket_server("tcp://0.0.0.0:{$port}", $errno, $errstr);
         if (!$server) {
             throw new \RuntimeException("Could not start callback listener on port {$port}: {$errstr}");
         }
 
+        echo "\033[32mListening for OAuth callback on http://127.0.0.1:{$port}\033[39m\n";
         $code = null;
         $conn = @stream_socket_accept($server, $timeoutSeconds);
+        echo "\033[32mReceived connection from OAuth callback\033[39m\n";
 
         if ($conn) {
             $request = '';
