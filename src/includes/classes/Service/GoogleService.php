@@ -128,8 +128,7 @@ class GoogleService
         // https://cloud.google.com/iam/docs/creating-managing-service-account-keys
         $this->logger->debug("Loading config from: " . $this->_clientSecretPath);
         $this->client->setAuthConfig($this->_clientSecretPath);
-        // $this->client->setAccessType('offline');
-        $this->client->setRedirectUri(("http://localhost:8088/authorized"));
+        $this->client->setAccessType('offline');
     }
 
     /**
@@ -181,6 +180,14 @@ class GoogleService
         }
 
         if ($this->client->isAccessTokenExpired()) {
+            $refreshToken = $this->client->getRefreshToken();
+            if (!empty($refreshToken)) {
+                $newToken = $this->client->fetchAccessTokenWithRefreshToken($refreshToken);
+                if (empty($newToken['error'])) {
+                    $this->storeAccessTokenToFile($this->_accessTokenPath, $this->client->getAccessToken());
+                    return true;
+                }
+            }
             return false;
         }
 
@@ -245,9 +252,9 @@ class GoogleService
 
     /**
      * Retrieves access token from file.
-     * 
+     *
      * @param string $filePath Path to token file
-     * 
+     *
      * @return array
      */
     protected function getAccessTokenFromFile(string $filePath): array|null
@@ -257,5 +264,125 @@ class GoogleService
         }
 
         return (array) json_decode(file_get_contents($filePath));
+    }
+
+    /**
+     * Runs the full OAuth 2.0 loopback flow for installed/desktop apps.
+     *
+     * Binds a one-shot HTTP listener on a random local port, sets that port
+     * as the redirect URI, opens the consent URL in the default browser,
+     * captures the authorization code from the callback, exchanges it for
+     * an access+refresh token, and persists the token to disk.
+     *
+     * @return bool True on success, false if the flow times out or fails.
+     */
+    public function authenticateViaLoopback(): bool
+    {
+        $port = 8089; // $this->_getAvailablePort();
+        $this->client->setRedirectUri("http://127.0.0.1:{$port}");
+        $this->client->setPrompt('consent');
+
+        $authUrl = $this->client->createAuthUrl();
+
+        echo "\033[32mOpening browser for Google authentication...\033[39m\n";
+        echo "\033[32mIf the browser does not open, visit this URL:\033[39m\n";
+        echo "\033[34m{$authUrl}\033[39m\n\n";
+        echo "\033[32mWaiting for authorization (2-minute timeout)...\033[39m\n";
+
+        $this->_openBrowser($authUrl);
+
+        $code = $this->_waitForCallbackCode($port);
+
+        if (empty($code)) {
+            echo "\033[31mAuthentication timed out or no code was received.\033[39m\n";
+            return false;
+        }
+
+        $accessToken = $this->_getAccessTokenFromCode($code);
+
+        if (empty($accessToken) || !empty($accessToken['error'])) {
+            $error = $accessToken['error'] ?? 'unknown error';
+            echo "\033[31mFailed to exchange code for token: {$error}\033[39m\n";
+            return false;
+        }
+
+        $this->storeAccessTokenToFile($this->_accessTokenPath, $accessToken);
+        $this->client->setAccessToken($accessToken);
+        $this->isAuthenticated = true;
+
+        echo "\033[32mAuthentication successful!\033[39m\n";
+        return true;
+    }
+
+    /**
+     * Finds an available TCP port by binding to port 0 and reading back the
+     * assigned port, then immediately releasing it.
+     */
+    private function _getAvailablePort(): int
+    {
+        $socket = stream_socket_server('tcp://127.0.0.1:0', $errno, $errstr);
+        if (!$socket) {
+            throw new \RuntimeException("Could not bind ephemeral port: {$errstr}");
+        }
+        $name = stream_socket_get_name($socket, false);
+        $port = (int) substr($name, strrpos($name, ':') + 1);
+        fclose($socket);
+        return $port;
+    }
+
+    /**
+     * Attempts to open $url in the default OS browser.
+     */
+    private function _openBrowser(string $url): void
+    {
+        if (PHP_OS_FAMILY === 'Windows') {
+            exec('rundll32 url.dll,FileProtocolHandler ' . escapeshellarg($url) . ' >NUL 2>&1');
+        } elseif (PHP_OS_FAMILY === 'Darwin') {
+            exec('open ' . escapeshellarg($url) . ' >/dev/null 2>&1');
+        } else {
+            exec('xdg-open ' . escapeshellarg($url) . ' >/dev/null 2>&1');
+        }
+    }
+
+    /**
+     * Starts a one-shot HTTP listener on 127.0.0.1:$port, waits for the
+     * OAuth redirect, sends a success/failure page to the browser, and
+     * returns the authorization code (or null on timeout/error).
+     */
+    private function _waitForCallbackCode(int $port, int $timeoutSeconds = 120): ?string
+    {
+        $server = stream_socket_server("tcp://127.0.0.1:{$port}", $errno, $errstr);
+        if (!$server) {
+            throw new \RuntimeException("Could not start callback listener on port {$port}: {$errstr}");
+        }
+
+        $code = null;
+        $conn = @stream_socket_accept($server, $timeoutSeconds);
+
+        if ($conn) {
+            $request = '';
+            while (!feof($conn)) {
+                $line = fgets($conn, 4096);
+                if ($line === false || $line === "\r\n") {
+                    break;
+                }
+                $request .= $line;
+            }
+
+            if (preg_match('/^GET [^?]*\?([^ ]*) HTTP/m', $request, $matches)) {
+                parse_str($matches[1], $params);
+                $code = $params['code'] ?? null;
+            }
+
+            $body = !empty($code)
+                ? '<html><body><h1 style="color:green">Authorization successful!</h1><p>You may close this tab and return to the terminal.</p></body></html>'
+                : '<html><body><h1 style="color:red">Authorization failed.</h1><p>No code received. Please try again.</p></body></html>';
+
+            fwrite($conn, "HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\nContent-Length: " . strlen($body) . "\r\nConnection: close\r\n\r\n" . $body);
+            fclose($conn);
+        }
+
+        fclose($server);
+        return $code;
     }
 }

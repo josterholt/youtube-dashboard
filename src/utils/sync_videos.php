@@ -12,12 +12,11 @@ if (!$googleService->isAuthenticated) {
         unlink("secrets/access_token.json");
     }
 
-    // if ($_ENV['GOOGLE_SERVICE_AUTHENTICATION_TYPE'] == "CLIENT") {
     if (php_sapi_name() == "cli") {
         echo "\n\n";
-        echo "\033[32mUse the following URL to authenticate:\033[39m\n";
-        echo "\033[34m" . $googleService->getAuthorizationPageURL() . "\033[39m\n";
-        exit(0);
+        if (!$googleService->authenticateViaLoopback()) {
+            exit(1);
+        }
     }
 }
 
